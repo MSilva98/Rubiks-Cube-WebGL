@@ -38,57 +38,13 @@ var ty = 0.0;
 
 var tz = 0.0;
 
-// The rotation angles in degrees
-
-var angleXX = 0.0;
-
-var angleYY = 0.0;
-
-var angleZZ = 0.0;
-
-// The scaling factors
-
-var sx = 0.25;
-
-var sy = 0.25;
-
-var sz = 0.25;
-
 var globalAngleY = 0.0;
 var globalAngleX = 0.0;
 var globalTz = 0.0;
 
-// NEW - Animation controls
+var angle = 0;
 
-var rotationXX_ON = 0;
-
-var rotationXX_DIR = 1;
-
-var rotationXX_SPEED = 1;
- 
-var rotationYY_ON = 0;
-
-var rotationYY_DIR = 1;
-
-var rotationYY_SPEED = 1;
- 
-var rotationZZ_ON = 0;
-
-var rotationZZ_DIR = 1;
-
-var rotationZZ_SPEED = 1;
- 
-// To allow choosing the way of drawing the model triangles
-
-var primitiveType = null;
- 
-// To allow choosing the projection type
-
-var projectionType = 1;
- 
-// From learningwebgl.com
-
-// NEW --- Storing the vertices defining the cube faces
+var cubes = [];
 
 vertices = [
             // Front face
@@ -256,23 +212,20 @@ function initBuffers() {
 
 //  Drawing the model
 
-function drawModel( angleXX, angleYY, angleZZ, 
-					sx, sy, sz,
-					tx, ty, tz,
-					mvMatrix,
-					primitiveType ) {
+var angle = 90;
+
+var rotateXX = false;
+
+function drawModel(	tx, ty, tz,
+					mvMatrix, rotateXX) {
 
     // Pay attention to transformation order !!
+    if(rotateXX == true){
+    	mvMatrix = mult( mvMatrix, rotationXXMatrix(angle));
+    }
     
-	mvMatrix = mult( mvMatrix, translationMatrix( tx, ty, tz ) );
-						 
-	mvMatrix = mult( mvMatrix, rotationZZMatrix( angleZZ ) );
-	
-	mvMatrix = mult( mvMatrix, rotationYYMatrix( angleYY ) );
-	
-	mvMatrix = mult( mvMatrix, rotationXXMatrix( angleXX ) );
-	
-	mvMatrix = mult( mvMatrix, scalingMatrix( sx, sy, sz ) );
+    mvMatrix = mult( mvMatrix, translationMatrix( tx, ty, tz ) );		
+	mvMatrix = mult( mvMatrix, scalingMatrix( 0.25, 0.25, 0.25 ) );
 						 
 	// Passing the Model View Matrix to apply the current transformation
 	
@@ -310,30 +263,9 @@ function drawScene() {
 	// Clearing with the background color
 	
 	gl.clear(gl.COLOR_BUFFER_BIT);
-	
-	// NEW --- Computing the Projection Matrix
-	
-	if( projectionType == 0 ) {
-		
-		// For now, the default orthogonal view volume
-		
-		pMatrix = ortho( -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 );
-		
-		// TO BE DONE !
-
-		// Allow the user to control the size of the view volume
-	}
-	else {	
-
-		// A standard view volume.
-		
-		// Viewer is at (0,0,0)
-		
-		// Ensure that the model is "inside" the view volume
-		
-		pMatrix = perspective( 45, 1, 0.05, 10 );
-		globalTz = -4;
-	}
+			
+	pMatrix = perspective( 45, 1, 0.05, 10 );
+	globalTz = -4;
 	
 	// Passing the Projection Matrix to apply the current projection
 	
@@ -350,307 +282,88 @@ function drawScene() {
 	mvMatrix = mult(mvMatrix,rotationXXMatrix(globalAngleY));
 	// Call the drawModel function !!
 	           	       
-	// Instance 2 --- LEFT TOP
+	// Middle cubes	
+	drawModel( tx - 0.5, ty + 0.5, tz,
+	           mvMatrix, false);
 	
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx - 0.5, ty + 0.5, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx, ty + 0.5, tz,
+	           mvMatrix, true);
+
+	drawModel( tx - 0.5, ty, tz,
+	           mvMatrix, false);
+
+	drawModel( tx-0.5, ty-0.5, tz,
+	           mvMatrix, false);
+
+	drawModel( tx+0.5, ty+0.5, tz,
+	           mvMatrix, false);
+
+	drawModel( tx+0.5, ty-0.5, tz,
+	           mvMatrix, false);
+
+	drawModel( tx+0.5, ty, tz,
+	           mvMatrix, false);
+
+	drawModel( tx, ty-0.5, tz,
+	           mvMatrix, true);
+
+	// Back cubes
 	           
-	// Instance 3 --- LEFT BOTTOM
+	drawModel( tx - 0.5, ty, tz - 0.5,
+	           mvMatrix, false);
+
+	drawModel( tx, ty + 0.5, tz - 0.5,
+	           mvMatrix, true);
 	
-	drawModel( angleXX, angleYY, angleZZ, 
-	           sx, sy, sz,
-	           tx, ty + 0.5, tz,
-	           mvMatrix,
-	           primitiveType );
-	           	       
-	// Instance 4 --- RIGHT BOTTOM
+	drawModel( tx - 0.5, ty + 0.5, tz - 0.5,
+	           mvMatrix, false);
 	
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx - 0.5, ty, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx, ty, tz - 0.5,
+	           mvMatrix, true);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx-0.5, ty-0.5, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx-0.5, ty-0.5, tz - 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty+0.5, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx+0.5, ty+0.5, tz - 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty-0.5, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx+0.5, ty-0.5, tz - 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx+0.5, ty, tz - 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty-0.5, tz,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx, ty-0.5, tz - 0.5,
+	           mvMatrix, true);
 
+	// Front cubes
 
-	           
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx - 0.5, ty, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx - 0.5, ty, tz + 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty + 0.5, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx, ty + 0.5, tz + 0.5,
+	           mvMatrix, true);
 	
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx - 0.5, ty + 0.5, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx - 0.5, ty + 0.5, tz + 0.5,
+	           mvMatrix, false);
 	
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx, ty, tz + 0.5,
+	           mvMatrix, true);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx-0.5, ty-0.5, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx-0.5, ty-0.5, tz + 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty+0.5, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx+0.5, ty+0.5, tz + 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty-0.5, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx+0.5, ty-0.5, tz + 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
+	drawModel( tx+0.5, ty, tz + 0.5,
+	           mvMatrix, false);
 
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty-0.5, tz - 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx - 0.5, ty, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty + 0.5, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-	
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx - 0.5, ty + 0.5, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-	
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx-0.5, ty-0.5, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty+0.5, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty-0.5, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx+0.5, ty, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-
-	drawModel( angleXX, angleYY, angleZZ,  // CW rotations
-	           sx, sy, sz,
-	           tx, ty-0.5, tz + 0.5,
-	           mvMatrix,
-	           primitiveType );
-}
-
-//----------------------------------------------------------------------------
-//
-//  NEW --- Animation
-//
-
-// Animation --- Updating transformation parameters
-
-var lastTime = 0;
-
-function animate() {
-	
-	var timeNow = new Date().getTime();
-	
-	if( lastTime != 0 ) {
-		
-		var elapsed = timeNow - lastTime;
-		
-		if( rotationXX_ON ) {
-
-			angleXX += rotationXX_DIR * rotationXX_SPEED * (90 * elapsed) / 1000.0;
-	    }
-
-		if( rotationYY_ON ) {
-
-			angleYY += rotationYY_DIR * rotationYY_SPEED * (90 * elapsed) / 1000.0;
-	    }
-
-		if( rotationZZ_ON ) {
-
-			angleZZ += rotationZZ_DIR * rotationZZ_SPEED * (90 * elapsed) / 1000.0;
-	    }
-	}
-	
-	lastTime = timeNow;
-}
-
-//----------------------------------------------------------------------------
-
-// Handling keyboard events
-
-// Adapted from www.learningwebgl.com
-
-var currentlyPressedKeys = {};
-
-function handleKeys() {
-	
-	if (currentlyPressedKeys[33]) {
-		
-		// Page Up
-		
-		sx *= 0.9;
-		
-		sz = sy = sx;
-	}
-	if (currentlyPressedKeys[34]) {
-		
-		// Page Down
-		
-		sx *= 1.1;
-		
-		sz = sy = sx;
-	}
-	if (currentlyPressedKeys[37]) {
-		
-		// Left cursor key
-		
-		if( rotationYY_ON == 0 ) {
-			
-			rotationYY_ON = 1;
-		}  
-		
-		rotationYY_SPEED -= 0.25;
-	}
-	if (currentlyPressedKeys[39]) {
-		
-		// Right cursor key
-		
-		if( rotationYY_ON == 0 ) {
-			
-			rotationYY_ON = 1;
-		}  
-		
-		rotationYY_SPEED += 0.25;
-	}
-	if (currentlyPressedKeys[38]) {
-		
-		// Up cursor key
-		
-		if( rotationXX_ON == 0 ) {
-			
-			rotationXX_ON = 1;
-		}  
-		
-		rotationXX_SPEED -= 0.25;
-	}
-	if (currentlyPressedKeys[40]) {
-		
-		// Down cursor key
-		
-		if( rotationXX_ON == 0 ) {
-			
-			rotationXX_ON = 1;
-		}  
-		
-		rotationXX_SPEED += 0.25;
-	}
-	if (currentlyPressedKeys[90]) {
-		
-		// Down cursor key
-		
-		if( rotationZZ_ON == 0 ) {
-			
-			rotationZZ_ON = 1;
-		}  
-		
-		if (rotationZZ_SPEED >= 0.25){
-			rotationZZ_SPEED -= 0.25;
-		}
-		else{
-			rotationZZ_SPEED = 0;
-		}
-
-	}
-	if (currentlyPressedKeys[88]) {
-		
-		// Down cursor key
-		
-		if( rotationZZ_ON == 0 ) {
-			
-			rotationZZ_ON = 1;
-		}  
-		
-		rotationZZ_SPEED += 0.25;
-	}
+	drawModel( tx, ty-0.5, tz + 0.5,
+	           mvMatrix, true);
 }
 
 //----------------------------------------------------------------------------
@@ -713,17 +426,11 @@ function tick() {
 	
 	requestAnimFrame(tick);
 	
-	// NEW --- Processing keyboard events 
-	
-	handleKeys();
-	
 	drawScene();
-	
+
 	animate();
+	
 }
-
-
-
 
 //----------------------------------------------------------------------------
 //
@@ -731,7 +438,6 @@ function tick() {
 //
 
 function outputInfos(){
-		
 }
 
 //----------------------------------------------------------------------------
@@ -747,25 +453,10 @@ function setEventListeners( canvas ){
     document.onmouseup = handleMouseUp;
     
     document.onmousemove = handleMouseMove;
-    
-    // NEW ---Handling the keyboard
-	
-	// From learningwebgl.com
 
-    function handleKeyDown(event) {
-		
-        currentlyPressedKeys[event.keyCode] = true;
-    }
-
-    function handleKeyUp(event) {
-		
-        currentlyPressedKeys[event.keyCode] = false;
-    }
-
-	document.onkeydown = handleKeyDown;
-    
-    document.onkeyup = handleKeyUp;
-	
+    document.getElementById("rot").onclick = function(){
+    	rotateXX = true;
+    };
 
 	document.getElementById("reset-button").onclick = function(){
 		
@@ -776,38 +467,31 @@ function setEventListeners( canvas ){
 		ty = 0.0;
 
 		tz = 0.0;
-
-		angleXX = 0.0;
-
-		angleYY = 0.0;
-
-		angleZZ = 0.0;
-
-		sx = 0.25;
-
-		sy = 0.25;
-
-		sz = 0.25;
-		
-		rotationXX_ON = 0;
-		
-		rotationXX_DIR = 1;
-		
-		rotationXX_SPEED = 1;
-
-		rotationYY_ON = 0;
-		
-		rotationYY_DIR = 1;
-		
-		rotationYY_SPEED = 1;
-
-		rotationZZ_ON = 0;
-		
-		rotationZZ_DIR = 1;
-		
-		rotationZZ_SPEED = 1;
 	};      
 }
+
+var lastTime = 0;
+
+function animate() {
+	
+	var timeNow = new Date().getTime();
+	
+	if( lastTime != 0 ) {
+		
+		var elapsed = timeNow - lastTime;
+		
+		if( rotateXX ) {
+
+			angle += parseInt(1 * (90 * elapsed) / 1000.0);
+			if(angle%90 == 0){
+				rotateXX = false;
+			}
+	    }
+	}
+	
+	lastTime = timeNow;
+}
+
 
 //----------------------------------------------------------------------------
 //
@@ -826,10 +510,6 @@ function initWebGL( canvas ) {
 		// DEFAULT: The viewport occupies the whole canvas 
 		
 		// DEFAULT: The viewport background color is WHITE
-		
-		// NEW - Drawing the triangles defining the model
-		
-		primitiveType = gl.TRIANGLES;
 		
 		// DEFAULT: The Depth-Buffer is DISABLED
 		
