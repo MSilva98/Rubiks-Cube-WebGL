@@ -6,11 +6,7 @@
 
 <!--
 
-WebGL_example_27.html
-
-Simple mesh data structure
-
-J. Madeira - November 2015
+Rubicks Cube.html
 
 -->
 
@@ -92,6 +88,7 @@ Passing the Model-View Matrix and the Projection Matrix.
 <script type="text/javascript" src="initShaders.js"></script>
 
 <script type="text/javascript" src="rubiks.js"></script>
+<script type="text/javascript" src="cube.js"></script>
 
 </head>
 
@@ -101,13 +98,44 @@ Passing the Model-View Matrix and the Projection Matrix.
 
 
 		<canvas id="my-canvas" style="border:1px solid #000000;" width="800" height="800"></canvas>
+		<p>
+		Press X, Y, Z for global counter-clockwise rotation (shift+X,Y,Z for clockwise rotation)
+		</p>
+		<p>
+		<button id="reset-button">Reset</button>
+		</p>
 
 		<p>
+		<button id="rotXXleft+">Rot XX Left +</button>
+		<button id="rotXXmid+">Rot XX Middle +</button>
+		<button id="rotXXright+">Rot XX Right +</button>
+		</p>
+		<p>
+		<button id="rotXXleft-">Rot XX Left -</button>
+		<button id="rotXXmid-">Rot XX Middle -</button>
+		<button id="rotXXright-">Rot XX Right -</button>
+		</p>
 
-		<button id="reset-button">Reset</button>
+		<p>
+		<button id="rotYYleft+">Rot YY Top +</button>
+		<button id="rotYYmid+">Rot YY Middle +</button>
+		<button id="rotYYright+">Rot YY Bottom +</button>
+		</p>
+		<p>
+		<button id="rotYYleft-">Rot YY Top -</button>
+		<button id="rotYYmid-">Rot YY Middle -</button>
+		<button id="rotYYright-">Rot YY Bottom -</button>
+		</p>
 
-		<button id="rot">Rot</button>
-
+		<p>
+		<button id="rotZZleft+">Rot ZZ Back +</button>
+		<button id="rotZZmid+">Rot ZZ Middle +</button>
+		<button id="rotZZright+">Rot ZZ Front +</button>
+		</p>
+		<p>
+		<button id="rotZZleft-">Rot ZZ Back -</button>
+		<button id="rotZZmid-">Rot ZZ Middle -</button>
+		<button id="rotZZright-">Rot ZZ Front -</button>
 		</p>
 	</div>
 
