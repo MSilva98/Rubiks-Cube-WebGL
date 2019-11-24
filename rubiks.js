@@ -35,7 +35,7 @@ var kSpec = [ 1.0, 1.0, 1.0 ];
 
 var nPhong = 100.0;
 
-var projectionType = 0; // To allow choosing the projection type
+var projectionType = 0;
 
 // The global transformation parameters
 var globalAngleX = 0.0;
@@ -157,61 +157,6 @@ vertices =[
 		0.95, -0.95, 0.95,
 
 ];
-
-// vertices = [
-//             // Front face
-//             -0.95, -0.95,  0.95,
-//              0.95, -0.95,  0.95,
-//              0.95,  0.95,  0.95,
-//             -0.95,  0.95,  0.95,
-//
-//             // Back face
-//             -0.95, -0.95, -0.95,
-//             -0.95,  0.95, -0.95,
-//              0.95,  0.95, -0.95,
-//              0.95, -0.95, -0.95,
-//
-//             // Top face
-//             -0.95,  0.95, -0.95,
-//             -0.95,  0.95,  0.95,
-//              0.95,  0.95,  0.95,
-//              0.95,  0.95, -0.95,
-//
-//             // Bottom face
-//             -0.95, -0.95, -0.95,
-//              0.95, -0.95, -0.95,
-//              0.95, -0.95,  0.95,
-//             -0.95, -0.95,  0.95,
-//
-//             // Right face
-//              0.95, -0.95, -0.95,
-//              0.95,  0.95, -0.95,
-//              0.95,  0.95,  0.95,
-//              0.95, -0.95,  0.95,
-//
-//             // Left face
-//             -0.95, -0.95, -0.95,
-//             -0.95, -0.95,  0.95,
-//             -0.95,  0.95,  0.95,
-//             -0.95,  0.95, -0.95
-// ];
-
-// Vertex indices defining the triangles
-
-// var cubeVertexIndices = [
-//
-//             0, 1, 2,      0, 2, 3,    // Front face
-//
-//             4, 5, 6,      4, 6, 7,    // Back face
-//
-//             8, 9, 10,     8, 10, 11,  // Top face
-//
-//             12, 13, 14,   12, 14, 15, // Bottom face
-//
-//             16, 17, 18,   16, 18, 19, // Right face
-//
-//             20, 21, 22,   20, 22, 23  // Left face
-// ];
 
 // And their colour
 
@@ -555,44 +500,6 @@ function computeIllumination( mvMatrix ) {
 }
 
 
-
-//----------------------------------------------------------------------------
-
-// //  Drawing the model
-// function drawModel(mvMatrix, tx, ty, tz) {
-    
-//     // mvMatrix = computeRotations(tx,ty,tz,mvMatrix);
-
-// 	// mvMatrix = mult(mvMatrix, translationMatrix(tx, ty, tz));
-// 	// for (var i = 0; i < cubes.length; i++) {
-// 		mvMatrix = computeRotations(mvMatrix, tx, ty, tz);
-
-// 		// mvMatrix = mult(mvMatrix, translationMatrix(tx, ty, tz));
-
-// 	    mvMatrix = mult( mvMatrix, scalingMatrix( 0.25, 0.25, 0.25 ) );
-
-// 		// Passing the Model View Matrix to apply the current transformation
-
-// 		var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-
-// 		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(flatten(mvMatrix)));
-
-// 		// NEW - Aux. Function for computing the illumination
-
-// 		computeIllumination( mvMatrix );
-
-// 		initBuffers();
-
-// 		// Drawing
-
-// 		// primitiveType allows drawing as filled triangles / wireframe / vertices
-
-// 		gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-// 	// }
-// }
-
-//----------------------------------------------------------------------------
-
 //  Drawing the 3D scene
 
 var cubes = [];
@@ -628,20 +535,19 @@ function drawScene() {
 
 	gl.uniformMatrix4fv(pUniform, false, new Float32Array(flatten(pMatrix)));
 
-	// NEW --- Instantianting the same model more than once !!
 
-	// And with diferent transformation parameters !!
-	// mvMatrix = mult(mvMatrix,translationMatrix(0,0,globalTz));
-	
 	fillCubesArray();
+	for (var i = 0; i < cubes.length; i++) {
+		cubes[i].computeAllRot();
+	}
+
 	// compute rotation HERE!!! (new function tbh)
-	
 	// cubes[2].rotationX(angleXl);
 	// cubes[2].rotationY(angleYl);
+	computeRotations();
 
 	// Call the drawModel function !!
 	for(var i = 0; i < cubes.length; i++){
-		cubes[i].computeAllRot();
 		cubes[i].drawModel(); 		
 	}
 
@@ -656,149 +562,230 @@ function rotation2D(angle, t1, t2){
 }
 
 // compute rotations
+// tx = -0.5 -> 0,1,2,3,4,5,6,7,8
+// tx = 0.0  -> 9,10,11,12,13,14,15,16,17
+// tx = 0.5  -> 18,19,20,21,22,23,24,25,26
+
+// ty = -0.5 -> 0,1,2,9,10,11,18,19,20
+// ty = 0.0  -> 3,4,5,12,13,14,21,22,23
+// ty = 0.5  -> 6,7,8,15,16,17,24,25,26
+
+// tz = -0.5 -> 0,3,6,9,12,15,18,21,24
+// tz = 0.0  -> 1,4,7,10,13,16,19,22,25
+// tz = 0.5  -> 2,5,8,11,14,17,20,23,26
 function computeRotations(){
-	// // Rotations around XX
-	// // Left Face
-	// if(tx == -0.5 && angleXl){
-	// 	mvMatrix = mult(mvMatrix, rotationXXMatrix(angleXl));	
+	// cubes[5].rotationX(angleXl);
+	// cubes[2].rotationY(angleYl);
+	var temp, temp2;
+	
+	if(angleYl){
+		// cubes[6].rotationX(-angleXl);
+		// cubes[6].rotationZ(-angleZl);
+		cubes[6].rotationY(angleYl);
+		// cubes[6].rotationZ(angleZl);
+		// cubes[6].rotationX(angleXl);
 		
-	// 	if(angleXl%90 == 0){
-	// 		var temp = rotation2D(angleXl, ty, tz);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(tx,temp[0],temp[1]));
-	// 	}
-	// }
-	// // Middle Face
-	// else if(tx == 0.0 && angleXm){
-	// 	mvMatrix = mult(mvMatrix, rotationXXMatrix(angleXm));
+		// cubes[7].rotationX(-angleXl);
+		// cubes[7].rotationZ(-angleZm);
+		cubes[7].rotationY(angleYl);
+		// cubes[7].rotationZ(angleZm);
+		// cubes[7].rotationX(angleXl);
+		
+		// cubes[8].rotationX(-angleXl);
+		// cubes[8].rotationZ(-angleZr);
+		cubes[8].rotationY(angleYl);
+		// cubes[8].rotationZ(angleZr);
+		// cubes[8].rotationX(angleXl);
 
-	// 	if(angleXm%90 == 0){
-	// 		var temp = rotation2D(angleXm, ty, tz);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(tx,temp[0],temp[1]));
-	// 	}
-	// }
-	// // Right Face
-	// else if(tx == 0.5 && angleXr){
-	// 	mvMatrix = mult(mvMatrix, rotationXXMatrix(angleXr));
+		cubes[15].rotationX(-angleXm);
+		cubes[15].rotationZ(-angleZl);
+		cubes[15].rotationY(angleYl);
+		cubes[15].rotationZ(angleZl);
+		cubes[15].rotationX(angleXm);
+		
+		cubes[16].rotationX(-angleXm);
+		cubes[16].rotationZ(-angleZm);
+		cubes[16].rotationY(angleYl);
+		cubes[16].rotationZ(angleZm);
+		cubes[16].rotationX(angleXm);
+		
+		cubes[17].rotationX(-angleXm);
+		cubes[17].rotationZ(-angleZr);
+		cubes[17].rotationY(angleYl);
+		cubes[17].rotationZ(angleZr);
+		cubes[17].rotationX(angleXm);
+		
+		cubes[24].rotationX(-angleXr);
+		cubes[24].rotationZ(-angleZl);
+		cubes[24].rotationY(angleYl);
+		cubes[24].rotationZ(angleZl);
+		cubes[24].rotationX(angleXr);
 
-	// 	if(angleXr%90 == 0){
-	// 		var temp = rotation2D(angleXr, ty, tz);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(tx,temp[0],temp[1]));
-	// 	}
-	// }
+		cubes[25].rotationX(-angleXr);
+		cubes[25].rotationZ(-angleZm);
+		cubes[25].rotationY(angleYl);
+		cubes[25].rotationZ(angleZm);
+		cubes[25].rotationX(angleXr);
 
-	// // Rotations around YY
-	// // Top Face
-	// if(ty == 0.5){
-	// 	mvMatrix = mult(mvMatrix, rotationYYMatrix(angleYl));
+		cubes[26].rotationX(-angleXr);
+		cubes[26].rotationZ(-angleZr);
+		cubes[26].rotationY(angleYl);
+		cubes[26].rotationZ(angleZr);
+		cubes[26].rotationX(angleXr);
 
-	// 	if(angleYl%90 == 0){
-	// 		var temp = rotation2D(angleYl, tx, tz);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(temp[0],ty,temp[1]));
-	// 	}
-	// }
-	// // Middle Face
-	// if(ty == 0.0){
-	// 	mvMatrix = mult(mvMatrix, rotationYYMatrix(angleYm));
+		if(angleYl == 90 || angleYl == -270){	
+			// corner cubes
+			temp = cubes[6];
+			cubes[6] = cubes[24];
+			cubes[24] = cubes[26];
+			cubes[26] = cubes[8];
+			cubes[8] = temp;
+			
+			// middle cubes
+			temp = cubes[7];
+   			cubes[7] = cubes[15];
+   			cubes[15] = cubes[25];
+   			cubes[25] = cubes[17];
+   			cubes[17] = temp;
+   			console.log("changed");
+		}
+		else if(angleYl == 180 || angleYl == -180){
+			// corner cubes
+			temp = cubes[6];
+			temp2 = cubes[8];
+			cubes[6] = cubes[26];
+			cubes[8] = cubes[24];
+			cubes[26] = temp;
+			cubes[24] = temp2;
+			
+			// middle cubes
+			temp = cubes[7];
+			temp2 = cubes[15];
+   			cubes[7] = cubes[25];
+   			cubes[15] = cubes[17];
+   			cubes[17] = temp2;
+   			cubes[25] = temp;
+		}
+		else if(angleYl == 270 || angleYl == -90){
+			// corner cubes
+			temp = cubes[6];
+			cubes[6] = cubes[8];
+			cubes[8] = cubes[26];
+			cubes[26] = cubes[24];
+			cubes[24] = temp;
+			
+			// middle cubes
+			temp = cubes[7];
+   			cubes[7] = cubes[17];
+   			cubes[17] = cubes[25];
+   			cubes[25] = cubes[15];
+   			cubes[15] = temp;
+		}
+	}
+	if(angleXl){
+		cubes[0].rotationY(-angleYr);
+		cubes[0].rotationZ(-angleZl);
+		cubes[0].rotationX(angleXl);
+		cubes[0].rotationY(angleYr);
+		cubes[0].rotationZ(angleZl);
 
-	// 	if(angleYm%90 == 0){
-	// 		var temp = rotation2D(angleYm, tx, tz);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(temp[0],ty,temp[1]));
-	// 	}
-	// }
-	// // Bottom Face
-	// if(ty == -0.5){
-	// 	mvMatrix = mult(mvMatrix, rotationYYMatrix(angleYr));
+		cubes[1].rotationY(-angleYr);
+		cubes[1].rotationZ(-angleZm);
+		cubes[1].rotationX(angleXl);
+		cubes[1].rotationY(angleYr);
+		cubes[1].rotationZ(angleZm);
 
-	// 	if(angleYr%90 == 0){
-	// 		var temp = rotation2D(angleYr, ty, tz);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(temp[0],ty,temp[1]));
-	// 	}
-	// }
+		cubes[2].rotationY(-angleYr);
+		cubes[2].rotationZ(-angleZr);
+		cubes[2].rotationX(angleXl);
+		cubes[2].rotationY(angleYr);
+		cubes[2].rotationZ(angleZr);
 
-	// // Rotations around ZZ
-	// // Back Face
-	// if(tz == -0.5){
-	// 	mvMatrix = mult(mvMatrix, rotationZZMatrix(angleZl));
+		cubes[3].rotationY(-angleYm);
+		cubes[3].rotationZ(-angleZl);
+		cubes[3].rotationX(angleXl);
+		cubes[3].rotationY(angleYm);
+		cubes[3].rotationZ(angleZl);
 
-	// 	if(angleZl%90 == 0){
-	// 		var temp = rotation2D(angleZl, tx, ty);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(temp[0],temp[1],tz));
-	// 	}
-	// }
-	// // Middle Face
-	// if(tz == 0.0){
-	// 	mvMatrix = mult(mvMatrix, rotationZZMatrix(angleZm));
+		cubes[4].rotationY(-angleYm);
+		cubes[4].rotationZ(-angleZm);
+		cubes[4].rotationX(angleXl);
+		cubes[4].rotationY(angleYm);
+		cubes[4].rotationZ(angleZm);
 
-	// 	if(angleZm%90 == 0){
-	// 		var temp = rotation2D(angleZm, tx, ty);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(temp[0],temp[1],tz));
-	// 	}
-	// }
-	// // Front Face
-	// if(tz == 0.5){
-	// 	mvMatrix = mult(mvMatrix, rotationZZMatrix(angleZr));
+		cubes[5].rotationY(-angleYm);
+		cubes[5].rotationZ(-angleZr);
+		cubes[5].rotationX(angleXl);
+		cubes[5].rotationY(angleYm);
+		cubes[5].rotationZ(angleZr);
 
-	// 	if(angleZr%90 == 0){
-	// 		var temp = rotation2D(angleZr, tx, ty);
-	// 		mvMatrix = mult(mvMatrix, translationMatrix(temp[0],temp[1],tz));
-	// 	}
-	// }
-	// return mvMatrix;
+		cubes[6].rotationY(-angleYl);
+		cubes[6].rotationZ(-angleZl);
+		cubes[6].rotationX(angleXl);
+		cubes[6].rotationY(angleYl);
+		cubes[6].rotationZ(angleZl);
+
+		cubes[7].rotationY(-angleYl);
+		cubes[7].rotationZ(-angleZm);
+		cubes[7].rotationX(angleXl);
+		cubes[7].rotationY(angleYl);
+		cubes[7].rotationZ(angleZm);
+
+		cubes[8].rotationY(-angleYl);
+		cubes[8].rotationZ(-angleZr);
+		cubes[8].rotationX(angleXl);
+		cubes[8].rotationY(angleYl);
+		cubes[8].rotationZ(angleZr);
+
+		if(angleXl == 90 || angleXl == -270){	
+			// corner cubes
+			temp = cubes[0];
+			cubes[0] = cubes[2];
+			cubes[2] = cubes[8];
+			cubes[8] = cubes[6];
+			cubes[6] = temp;
+			
+			// middle cubes
+			temp = cubes[1];
+   			cubes[1] = cubes[5];
+   			cubes[5] = cubes[7];
+   			cubes[7] = cubes[3];
+   			cubes[3] = temp;
+		}
+		else if(angleXl == 180 || angleXl == -180){
+			// corner cubes
+			temp = cubes[0];
+			temp2 = cubes[2];
+			cubes[0] = cubes[8];
+			cubes[2] = cubes[6];
+			cubes[8] = temp;
+			cubes[6] = temp2;
+			
+			// middle cubes
+			temp = cubes[1];
+			temp2 = cubes[3];
+   			cubes[1] = cubes[7];
+   			cubes[3] = cubes[5];
+   			cubes[5] = temp2;
+   			cubes[7] = temp;
+		}
+		else if(angleXl == 270 || angleXl == -90){
+			// corner cubes
+			temp = cubes[0];
+			cubes[0] = cubes[6];
+			cubes[6] = cubes[8];
+			cubes[8] = cubes[2];
+			cubes[2] = temp;
+			
+			// middle cubes
+			temp = cubes[1];
+   			cubes[1] = cubes[3];
+   			cubes[3] = cubes[7];
+   			cubes[7] = cubes[5];
+   			cubes[5] = temp;
+		}
+	}
 }
-
-//----------------------------------------------------------------------------
-
-// Handling mouse events
-
-// Adapted from www.learningwebgl.com
-
-
-var mouseDown = false;
-
-var lastMouseX = null;
-
-var lastMouseY = null;
-
-function handleMouseDown(event) {
-
-    mouseDown = true;
-
-    lastMouseX = event.clientX;
-
-    lastMouseY = event.clientY;
-}
-
-function handleMouseUp(event) {
-
-    mouseDown = false;
-}
-
-function handleMouseMove(event) {
-
-    if (!mouseDown) {
-
-      return;
-    }
-
-    // Rotation angles proportional to cursor displacement
-
-    var newX = event.clientX;
-
-    var newY = event.clientY;
-
-    var deltaX = newX - lastMouseX;
-
-    // globalAngleX += radians( 10 * deltaX  )
-
-    var deltaY = newY - lastMouseY;
-
-    // globalAngleY += radians( 10 * deltaY  )
-
-    lastMouseX = newX
-
-    lastMouseY = newY;
-}
-
 
 //----------------------------------------------------------------------------
 
@@ -858,16 +845,6 @@ function outputInfos(){
 //----------------------------------------------------------------------------
 
 function setEventListeners( canvas ){
-
-	// NEW ---Handling the mouse
-
-	// From learningwebgl.com
-
-    canvas.onmousedown = handleMouseDown;
-
-    document.onmouseup = handleMouseUp;
-
-    document.onmousemove = handleMouseMove;
 
 	function handleKeyDown(event){
 		currentlyPressedKeys[event.keyCode] = true;
@@ -971,7 +948,7 @@ function setEventListeners( canvas ){
 	document.getElementById("reset-button").onclick = function(){
 
 		// The initial values
-		angleXl = 9;
+		angleXl = 0;
 		angleXm = 0;
 		angleXr = 0;
 
@@ -1124,11 +1101,7 @@ function initWebGL( canvas ) {
 
 		// DEFAULT: The Depth-Buffer is DISABLED
 
-		// Enable it !
-
 		gl.enable( gl.DEPTH_TEST );
-
-
 
 	} catch (e) {
 	}

@@ -45,8 +45,6 @@ class Cube{
 	}
 
 	rotationX(angle){
-		// var mvMatrix1 = mat4();
-		// this.mvMatrix = mult(this.mvMatrix, translationMatrix(0,0,globalTz));
 		this.mvMatrix = mult(this.mvMatrix, rotationXXMatrix(angle));
 	}
 
