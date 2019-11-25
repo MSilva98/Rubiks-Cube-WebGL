@@ -493,7 +493,14 @@ function computeIllumination( mvMatrix ) {
 
 
 //  Drawing the 3D scene
+
 var cubes = [];
+var leftFace = {};
+var rightFace = {};
+var topFace = {};
+var bottomFace = {};
+var frontFace = {};
+var backFace = {};
 
 function fillCubesArray(){
 	var mvMatrix = mat4();
@@ -508,6 +515,98 @@ function fillCubesArray(){
 			} 	
 		}	
 	}
+}
+
+function fillFaces(){
+	fillCubesArray();
+	// var l = r = f = b = t = bF = 0;
+	// leftFace[l] = Object(cubes[0]);
+	// for (var i = 0; i < cubes.length; i++) {
+		// if(cubes[0].x == -0.5 && Object.keys(leftFace).length < 9){
+		// 	leftFace[l] = Object(cubes[0]);
+		// 	l++;
+		// }
+		leftFace[0] = Object(cubes[0]);
+		leftFace[1] = Object(cubes[1]);
+		leftFace[2] = Object(cubes[2]);
+		leftFace[3] = Object(cubes[3]);
+		leftFace[4] = Object(cubes[4]);
+		leftFace[5] = Object(cubes[5]);
+		leftFace[6] = Object(cubes[6]);
+		leftFace[7] = Object(cubes[7]);
+		leftFace[8] = Object(cubes[8]);
+
+		rightFace[0] = Object(cubes[18]);
+		rightFace[1] = Object(cubes[19]);
+		rightFace[2] = Object(cubes[20]);
+		rightFace[3] = Object(cubes[21]);
+		rightFace[4] = Object(cubes[22]);
+		rightFace[5] = Object(cubes[23]);
+		rightFace[6] = Object(cubes[24]);
+		rightFace[7] = Object(cubes[25]);
+		rightFace[8] = Object(cubes[26]);
+
+		topFace[0] = Object(cubes[6]);
+		topFace[1] = Object(cubes[7]);
+		topFace[2] = Object(cubes[8]);
+		topFace[3] = Object(cubes[15]);
+		topFace[4] = Object(cubes[16]);
+		topFace[5] = Object(cubes[17]);
+		topFace[6] = Object(cubes[24]);
+		topFace[7] = Object(cubes[25]);
+		topFace[8] = Object(cubes[26]);
+
+		bottomFace[0] = Object(cubes[0]);
+		bottomFace[1] = Object(cubes[1]);
+		bottomFace[2] = Object(cubes[2]);
+		bottomFace[3] = Object(cubes[9]);
+		bottomFace[4] = Object(cubes[10]);
+		bottomFace[5] = Object(cubes[11]);
+		bottomFace[6] = Object(cubes[18]);
+		bottomFace[7] = Object(cubes[19]);
+		bottomFace[8] = Object(cubes[20]);
+
+		backFace[0] = Object(cubes[0]);
+		backFace[1] = Object(cubes[3]);
+		backFace[2] = Object(cubes[6]);
+		backFace[3] = Object(cubes[9]);
+		backFace[4] = Object(cubes[12]);
+		backFace[5] = Object(cubes[15]);
+		backFace[6] = Object(cubes[18]);
+		backFace[7] = Object(cubes[21]);
+		backFace[8] = Object(cubes[24]);
+
+		frontFace[0] = Object(cubes[2]);
+		frontFace[1] = Object(cubes[5]);
+		frontFace[2] = Object(cubes[8]);
+		frontFace[3] = Object(cubes[11]);
+		frontFace[4] = Object(cubes[14]);
+		frontFace[5] = Object(cubes[17]);
+		frontFace[6] = Object(cubes[20]);
+		frontFace[7] = Object(cubes[23]);
+		frontFace[8] = Object(cubes[26]);
+
+		// if(cubes[i].x == 0.5 && Object.keys(rightFace).length < 9){
+		// 	rightFace[r] = Object(cubes[i]);
+		// 	r++;
+		// }
+		// if(cubes[i].y == -0.5 && Object.keys(bottomFace).length < 9){
+		// 	bottomFace[b] = Object(cubes[i]);
+		// 	b++;
+		// }
+		// if(cubes[i].y == 0.5 && Object.keys(topFace).length < 9){
+		// 	topFace[t] = Object(cubes[i]);
+		// 	t++;
+		// }
+		// if(cubes[i].z == -0.5 && Object.keys(backFace).length < 9){
+		// 	backFace[bF] = Object(cubes[i]);
+		// 	bF++;
+		// }
+		// if(cubes[i].z == 0.5 && Object.keys(frontFace).length < 9){
+		// 	frontFace[f] = Object(cubes[i]);
+		// 	f++;
+		// }
+	// }
 }
 
 function drawScene() {
@@ -526,7 +625,8 @@ function drawScene() {
 
 	gl.uniformMatrix4fv(pUniform, false, new Float32Array(flatten(pMatrix)));
 
-	fillCubesArray();
+	// fillCubesArray();
+	fillFaces();
 
 	for (var i = 0; i < cubes.length; i++) {
 		cubes[i].computeAllRot();
@@ -536,8 +636,17 @@ function drawScene() {
 	computeRotations();
 
 	// Call the drawModel function !!
-	for(var i = 0; i < cubes.length; i++){
-		cubes[i].drawModel(); 		
+	// for(var i = 0; i < cubes.length; i++){
+	// 	cubes[i].drawModel(); 		
+	// }
+
+	for (var i = 0; i < 9; i++) {
+		leftFace[i].drawModel();
+		rightFace[i].drawModel();
+		bottomFace[i].drawModel();
+		topFace[i].drawModel();
+		backFace[i].drawModel();
+		frontFace[i].drawModel();
 	}
 }
 
@@ -656,6 +765,7 @@ function changeCubesY(){
 // tz = 0.5  -> 2,5,8,11,14,17,20,23,26
 
 function computeRotations(){
+	var temp, temp2;
 	if(angleZl){
 		cubes[0].rotationZ(angleZl);
 		cubes[3].rotationZ(angleZl);
@@ -669,6 +779,7 @@ function computeRotations(){
 	}
 	
 	if(angleYl){
+		// changeCubesX();
 		cubes[6].rotationY(angleYl);
 		cubes[7].rotationY(angleYl);
 		cubes[8].rotationY(angleYl);
@@ -681,6 +792,8 @@ function computeRotations(){
 	}
 
 	if(angleXl){
+		// changeCubesY();
+		
 		cubes[0].rotationX(angleXl);
 		cubes[1].rotationX(angleXl);
 		cubes[2].rotationX(angleXl);

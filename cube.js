@@ -4,9 +4,10 @@ class Cube{
 
 	constructor(mvMatrix, x,y,z){
 		this.mvMatrix = mvMatrix;
+		this.mvMatrixFix = mvMatrix; 
 		this.x = x;
 		this.y = y;
-		this.z = z;		
+		this.z = z;
 	}
 
 	drawModel(){
@@ -24,9 +25,6 @@ class Cube{
 		initBuffers();
 
 		// Drawing
-
-		// primitiveType allows drawing as filled triangles / wireframe / vertices
-
 		gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 	}
 
@@ -44,8 +42,15 @@ class Cube{
 		return this.mvMatrix;
 	}
 
-	rotationX(angle){
+	rotationX(angle, angleAxis){
+		var t1 = this.y;
+		var t2 = this.z;
+		var temp1, temp2;
 		this.mvMatrix = mult(this.mvMatrix, rotationXXMatrix(angle));
+		temp1 = t1*Math.cos(radians(angleAxis))-t2*Math.sin(radians(angleAxis));
+		temp2 = t1*Math.sin(radians(angleAxis))+t2*Math.cos(radians(angleAxis));
+		this.y = temp1;
+		this.z = temp2;
 	}
 
 	rotationY(angle){
@@ -55,6 +60,12 @@ class Cube{
 	rotationZ(angle){
 		this.mvMatrix = mult(this.mvMatrix, rotationZZMatrix(angle));
 	}	
+
+	// rotateOwnX(angle){
+	// 	this.mvMatrix = mult(this.mvMatrix, translationMatrix(this.x,this.y,this.z));
+	// 	this.mvMatrix = mult(this.mvMatrix, rotationXXMatrix(angle));
+	// 	this.mvMatrix = mult(this.mvMatrix, translationMatrix(-this.x,-this.y,-this.z));
+	// }
 
 }
 
