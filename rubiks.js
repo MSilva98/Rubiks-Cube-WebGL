@@ -21,21 +21,21 @@ var shaderProgram = null;
 
 // Ambient coef.
 
-var kAmbi = [ 0.3, 0.3, 0.3 ];
+var kAmbi = [ 0.2, 0.2, 0.2 ];
 
 // Difuse coef.
 
-var kDiff = [ 1.0, 1.0, 1.0 ];
+var kDiff = [ 0.2, 0.2, 0.2 ];
 
 // Specular coef.
 
-var kSpec = [ 1.0, 1.0, 1.0 ];
+var kSpec = [ 0.2, 0.2, 0.2 ];
 
 // Phong coef.
 
 var nPhong = 100.0;
 
-var projectionType = 0;
+var projectionType = 1; // To allow choosing the projection type
 
 // The global transformation parameters
 var globalAngleX = 0.0;
@@ -241,6 +241,7 @@ var colors = [
 		 1.00,  1.00,  0.00,
 ];
 
+var colors2 = [];
 
 
 //----------------------------------------------------------------------------
@@ -296,10 +297,10 @@ function computeIllumination( mvMatrix ) {
 
 	// Clearing the colors array
 
-	// for( var i = 0; i < colors.length; i++ )
-	// {
-	// 	colors[i] = 0.0;
-	// }
+	for( var i = 0; i < colors.length; i++ )
+	{
+		colors[i] = colors2[i];
+	}
 
     // SMOOTH-SHADING
 
@@ -383,15 +384,6 @@ function computeIllumination( mvMatrix ) {
 
 		    var lightSourceMatrix = mat4();
 
-		    // COMPLETE THE CODE FOR THE OTHER ROTATION AXES
-
-		    if( lightSources[l].isRotYYOn() )
-		    {
-				lightSourceMatrix = mult(
-						lightSourceMatrix,
-						rotationYYMatrix( lightSources[l].getRotAngleYY() ) );
-			}
-
 	        for( var i = 0; i < 3; i++ )
 	        {
 			    // AMBIENT ILLUMINATION --- Constant for every vertex
@@ -461,40 +453,40 @@ function computeIllumination( mvMatrix ) {
 	            cosNH = 0.0;
 	        }
 
-	        // // Compute the color values and store in the colors array
-			//
-	        // var tempR = ambientTerm[0] + diffuseTerm[0] * cosNL + specularTerm[0] * Math.pow(cosNH, nPhong);
-			//
-	        // var tempG = ambientTerm[1] + diffuseTerm[1] * cosNL + specularTerm[1] * Math.pow(cosNH, nPhong);
-			//
-	        // var tempB = ambientTerm[2] + diffuseTerm[2] * cosNL + specularTerm[2] * Math.pow(cosNH, nPhong);
-			//
-			// colors[vertIndex] += tempR;
-			//
-	        // // Avoid exceeding 1.0
-			//
-			// if( colors[vertIndex] > 1.0 ) {
-			//
-			// 	colors[vertIndex] = 1.0;
-			// }
-			//
-	        // // Avoid exceeding 1.0
-			//
-			// colors[vertIndex + 1] += tempG;
-			//
-			// if( colors[vertIndex + 1] > 1.0 ) {
-			//
-			// 	colors[vertIndex + 1] = 1.0;
-			// }
-			//
-			// colors[vertIndex + 2] += tempB;
-			//
-	        // // Avoid exceeding 1.0
-			//
-			// if( colors[vertIndex + 2] > 1.0 ) {
-			//
-			// 	colors[vertIndex + 2] = 1.0;
-			// }
+	        // Compute the color values and store in the colors array
+
+	        var tempR = ambientTerm[0] + diffuseTerm[0] * cosNL + specularTerm[0] * Math.pow(cosNH, nPhong);
+
+	        var tempG = ambientTerm[1] + diffuseTerm[1] * cosNL + specularTerm[1] * Math.pow(cosNH, nPhong);
+
+	        var tempB = ambientTerm[2] + diffuseTerm[2] * cosNL + specularTerm[2] * Math.pow(cosNH, nPhong);
+
+			colors[vertIndex] += tempR;
+
+	        // Avoid exceeding 1.0
+
+			if( colors[vertIndex] > 1.0 ) {
+
+				colors[vertIndex] = 1.0;
+			}
+
+	        // Avoid exceeding 1.0
+
+			colors[vertIndex + 1] += tempG;
+
+			if( colors[vertIndex + 1] > 1.0 ) {
+
+				colors[vertIndex + 1] = 1.0;
+			}
+
+			colors[vertIndex + 2] += tempB;
+
+	        // Avoid exceeding 1.0
+
+			if( colors[vertIndex + 2] > 1.0 ) {
+
+				colors[vertIndex + 2] = 1.0;
+			}
 	    }
 	}
 }
@@ -1103,6 +1095,11 @@ function initWebGL( canvas ) {
 
 		gl.enable( gl.DEPTH_TEST );
 
+		for (var i = 0; i < colors.length; i++) {
+			colors2[i]= colors[i];
+		}
+
+
 	} catch (e) {
 	}
 	if (!gl) {
@@ -1113,7 +1110,6 @@ function initWebGL( canvas ) {
 //----------------------------------------------------------------------------
 
 function runWebGL() {
-
 	var canvas = document.getElementById("my-canvas");
 
 	initWebGL( canvas );
