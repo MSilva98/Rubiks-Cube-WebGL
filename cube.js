@@ -42,7 +42,7 @@ class Cube{
 		return this.mvMatrix;
 	}
 
-	rotationX(angle, angleAxis){
+	rotationX(angle){
 		var t1 = this.y;
 		var t2 = this.z;
 		var temp1, temp2;
