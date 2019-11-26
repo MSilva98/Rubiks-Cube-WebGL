@@ -594,7 +594,6 @@ function drawScene() {
 	}
 
 	// compute rotation HERE!!! (new function tbh)
-	// changeFaces();
 	computeRotations();	
 
 	// Call the drawModel function !!
