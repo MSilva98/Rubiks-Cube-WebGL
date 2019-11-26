@@ -49,7 +49,10 @@ var globalTz = 0.0;
 // Each face can be at different angles
 var angleXl = 0;
 var angleXm = 0;
-var angleXr = 0; 
+var angleXr = 0;
+var angle1 = 0; 
+var angle2 = 0; 
+var angle3 = 0; 
 
 var angleYl = 0;
 var angleYm = 0;
@@ -494,20 +497,78 @@ function computeIllumination( mvMatrix ) {
 
 //  Drawing the 3D scene
 var cubes = [];
+var staticCube;
+var leftFace = [[],[],[]];
+var rightFace = [[],[],[]];
+var bottomFace = [[],[],[]];
+var topFace = [[],[],[]];
+var frontFace = [[],[],[]];
+var backFace = [[],[],[]];
 
 function fillCubesArray(){
 	var mvMatrix = mat4();
 	globalTz = -4;
 	mvMatrix = mult(mvMatrix,translationMatrix(0,0,globalTz));
-	var c = 0;
+	var y1 = y2 = y3 = y4 = 2;
+	var x1 = x2 = x5 = x6 = 2;
+	var c = y5 = y6 = x3 = x4 = 0;
 	for(var x = -0.5; x <= 0.5; x += 0.5){
 		for(var y = -0.5; y <= 0.5; y += 0.5){
 			for(var z = -0.5; z <= 0.5; z += 0.5){	
-				cubes[c] = new Cube(mvMatrix, x,y,z);
+				cubes[c] = new Cube(mvMatrix, x,y,z, c);
+				if(x == -0.5){
+					leftFace[x1][y1] = c;
+					y1--;
+					if(y1 == -1){
+						y1 = 2;
+						x1--;
+					}
+				}
+				if(x == 0.5){
+					rightFace[x2][y2] = c;
+					y2--;
+					if(y2 == -1){
+						y2 = 2;
+						x2--;
+					}
+				}
+				if(y == -0.5){
+					bottomFace[x3][y3] = c;
+					y3--;
+					if(y3 == -1){
+						y3 = 2;
+						x3++;
+					}	
+				}
+				if(y == 0.5){
+					topFace[x4][y4] = c;
+					y4--;
+					if(y4 == -1){
+						y4 = 2;
+						x4++;
+					}					
+				}
+				if(z == -0.5){
+					backFace[x5][y5] = c;
+					x5--;
+					if(x5 == -1){
+						x5 = 2;
+						y5++;
+					}
+				}
+				if(z == 0.5){
+					frontFace[x6][y6] = c;
+					x6--;
+					if(x6 == -1){
+						x6 = 2;
+						y6++;
+					}
+				}
 				c++;
 			} 	
 		}	
 	}
+	staticCube = cubes[13];
 }
 
 function drawScene() {
@@ -533,7 +594,8 @@ function drawScene() {
 	}
 
 	// compute rotation HERE!!! (new function tbh)
-	computeRotations();
+	// changeFaces();
+	computeRotations();	
 
 	// Call the drawModel function !!
 	for(var i = 0; i < cubes.length; i++){
@@ -541,156 +603,329 @@ function drawScene() {
 	}
 }
 
+function rotateCounterClockwise(matrix) {
+  // reverse the individual rows
+  matrix = matrix.map(function(row) {
+    return row.reverse();
+  });
+  // swap the symmetric elements
+  for (var i = 0; i < matrix.length; i++) {
+    for (var j = 0; j < i; j++) {
+      var temp = matrix[i][j];
+      matrix[i][j] = matrix[j][i];
+      matrix[j][i] = temp;
+    }
+  }
+}
 
-function changeCubesX(){
-	if(angleXl == 90 || angleXl == -270){	
-			// corner cubes
-			temp = cubes[0];
-			cubes[0] = cubes[2];
-			cubes[2] = cubes[8];
-			cubes[8] = cubes[6];
-			cubes[6] = temp;
-			
-			// middle cubes
-			temp = cubes[1];
-			cubes[1] = cubes[5];
-			cubes[5] = cubes[7];
-			cubes[7] = cubes[3];
-			cubes[3] = temp;
+function rotateClockwise(matrix) {
+  // reverse the rows
+  matrix = matrix.reverse();
+  // swap the symmetric elements
+  for (var i = 0; i < matrix.length; i++) {
+    for (var j = 0; j < i; j++) {
+      var temp = matrix[i][j];
+      matrix[i][j] = matrix[j][i];
+      matrix[j][i] = temp;
+    }
+  }
+}
+
+function rotateFaceX(bool){
+	var tempXl, tempXr;
+	if(bool){
+		// Left face
+		if(angleXl){
+			if(angleXl == -270){
+				tempXl = 90;
+			}
+			else if(angleXl == -90){
+				tempXl = 270;
+			}
+			else if(angleXl == -180){
+				tempXl = 180;
+			}
+			else{
+				tempXl = angleXl;
+			}
+			for (var i = 0; i < tempXl/90; i++) {
+				rotateCounterClockwise(leftFace);			
+			}
+			topFace[0][0] = leftFace[0][0];
+			topFace[0][1] = leftFace[0][1];
+			topFace[0][2] = leftFace[0][2];
+
+			bottomFace[0][0] = leftFace[2][0];
+			bottomFace[0][1] = leftFace[2][1];
+			bottomFace[0][2] = leftFace[2][2];
+				
+			frontFace[0][0] = leftFace[0][0];
+			frontFace[1][0] = leftFace[1][0];
+			frontFace[2][0] = leftFace[2][0];
+
+			backFace[0][0] = leftFace[0][2];
+			backFace[1][0] = leftFace[1][2];
+			backFace[2][0] = leftFace[2][2];
+			console.log("Changed left face");
 		}
-		else if(angleXl == 180 || angleXl == -180){
-			// corner cubes
-			temp = cubes[0];
-			temp2 = cubes[2];
-			cubes[0] = cubes[8];
-			cubes[2] = cubes[6];
-			cubes[8] = temp;
-			cubes[6] = temp2;
+	}
+	else{
+		// Right Face
+		if(angleXr){
+			if(angleXr == -270){
+				tempXr = 90;
+			}
+			else if(angleXr == -90){
+				tempXr = 270;
+			}
+			else if(angleXr == -180){
+				tempXr = 180;
+			}
+			else{
+				tempXr = angleXr;
+			}
+			for (var i = 0; i < tempXr/90; i++) {
+				rotateCounterClockwise(rightFace);			
+			}
+			topFace[2][0] = rightFace[0][0];
+			topFace[2][1] = rightFace[0][1];
+			topFace[2][2] = rightFace[0][2];
+
+			bottomFace[2][0] = rightFace[2][0];
+			bottomFace[2][1] = rightFace[2][1];
+			bottomFace[2][2] = rightFace[2][2];
 			
-			// middle cubes
-			temp = cubes[1];
-			temp2 = cubes[3];
-			cubes[1] = cubes[7];
-			cubes[3] = cubes[5];
-			cubes[5] = temp2;
-			cubes[7] = temp;
+			frontFace[0][2] = rightFace[0][0];
+			frontFace[1][2] = rightFace[1][0];
+			frontFace[2][2] = rightFace[2][0];
+
+			backFace[0][2] = rightFace[0][2];
+			backFace[1][2] = rightFace[1][2];
+			backFace[2][2] = rightFace[2][2];
+			console.log("Changed right face");
 		}
-		else if(angleXl == 270 || angleXl == -90){
-			// corner cubes
-			temp = cubes[0];
-			cubes[0] = cubes[6];
-			cubes[6] = cubes[8];
-			cubes[8] = cubes[2];
-			cubes[2] = temp;
-			
-			// middle cubes
-			temp = cubes[1];
-			cubes[1] = cubes[3];
-			cubes[3] = cubes[7];
-		cubes[7] = cubes[5];
-		cubes[5] = temp;
 	}
 }
 
-function changeCubesY(){
-	if(angleYl == 90 || angleYl == -270){	
-			// corner cubes
-			temp = cubes[6];
-			cubes[6] = cubes[24];
-			cubes[24] = cubes[26];
-			cubes[26] = cubes[8];
-			cubes[8] = temp;
+function rotateFaceY(bool){
+	var tempYl, tempYr;
+	if(bool){	
+		// Left face
+		if(angleYl){
+			if(angleYl == -270){
+				tempYl = 90;
+			}
+			else if(angleYl == -90){
+				tempYl = 270;
+			}
+			else if(angleYl == -180){
+				tempYl = 180;
+			}
+			else{
+				tempYl = angleYl;
+			}
+			for (var i = 0; i < tempYl/90; i++) {
+				rotateCounterClockwise(topFace);			
+			}
+
+			leftFace[0][0] = topFace[0][0];
+			leftFace[0][1] = topFace[0][1];
+			leftFace[0][2] = topFace[0][2];
+
+			rightFace[0][0] = topFace[2][0];
+			rightFace[0][1] = topFace[2][1];
+			rightFace[0][2] = topFace[2][2];
 			
-			// middle cubes
-			temp = cubes[7];
-			cubes[7] = cubes[15];
-			cubes[15] = cubes[25];
-			cubes[25] = cubes[17];
-			cubes[17] = temp;
-			console.log("changed Y");
+			frontFace[0][0] = topFace[0][0];
+			frontFace[0][1] = topFace[1][0];
+			frontFace[0][2] = topFace[2][0];
+
+			backFace[0][0] = topFace[0][2];
+			backFace[0][1] = topFace[1][2];
+			backFace[0][2] = topFace[2][2];
+			console.log("Changed top face");
 		}
-		else if(angleYl == 180 || angleYl == -180){
-			// corner cubes
-			temp = cubes[6];
-			temp2 = cubes[8];
-			cubes[6] = cubes[26];
-			cubes[8] = cubes[24];
-			cubes[26] = temp;
-			cubes[24] = temp2;
+	}
+	else{
+		// Right Face
+		if(angleYr){
+			if(angleYr == -270){
+				tempYr = 90;
+			}
+			else if(angleYr == -90){
+				tempYr = 270;
+			}
+			else if(angleYr == -180){
+				tempYr = 180;
+			}
+			else{
+				tempYr = angleYr;
+			}
+			for (var i = 0; i < tempYr/90; i++) {
+				rotateCounterClockwise(bottomFace);			
+			}
+			rightFace[2][0] = bottomFace[2][0];
+			rightFace[2][1] = bottomFace[2][1];
+			rightFace[2][2] = bottomFace[2][2];
+
+			leftFace[2][0] = bottomFace[0][0];
+			leftFace[2][1] = bottomFace[0][1];
+			leftFace[2][2] = bottomFace[0][2];
 			
-			// middle cubes
-			temp = cubes[7];
-			temp2 = cubes[15];
-			cubes[7] = cubes[25];
-			cubes[15] = cubes[17];
-			cubes[17] = temp2;
-			cubes[25] = temp;
+			frontFace[2][0] = bottomFace[0][0];
+			frontFace[2][1] = bottomFace[1][0];
+			frontFace[2][2] = bottomFace[2][0];
+
+			backFace[2][0] = bottomFace[0][2];
+			backFace[2][1] = bottomFace[1][2];
+			backFace[2][2] = bottomFace[2][2];
+			console.log("Changed Bottom face");
 		}
-		else if(angleYl == 270 || angleYl == -90){
-			// corner cubes
-			temp = cubes[6];
-			cubes[6] = cubes[8];
-			cubes[8] = cubes[26];
-			cubes[26] = cubes[24];
-			cubes[24] = temp;
-			
-			// middle cubes
-			temp = cubes[7];
-			cubes[7] = cubes[17];
-			cubes[17] = cubes[25];
-			cubes[25] = cubes[15];
-			cubes[15] = temp;
-		}
+	}
 }
-// compute rotations
-// tx = -0.5 -> 0,1,2,3,4,5,6,7,8
-// tx = 0.0  -> 9,10,11,12,13,14,15,16,17
-// tx = 0.5  -> 18,19,20,21,22,23,24,25,26
 
-// ty = -0.5 -> 0,1,2,9,10,11,18,19,20
-// ty = 0.0  -> 3,4,5,12,13,14,21,22,23
-// ty = 0.5  -> 6,7,8,15,16,17,24,25,26
+function rotateFaceZ(bool){
+	var tempZl, tempZr;
+ 	// Left face
+	if(bool){
+		if(angleZl){
+			if(angleZl == -270){
+				tempZl = 90;
+			}
+			else if(angleZl == -90){
+				tempZl = 270;
+			}
+			else if(angleZl == -180){
+				tempZl = 180;
+			}
+			else{
+				tempZl = angleZl;
+			}
+			for (var i = 0; i < tempZl/90; i++) {
+				rotateCounterClockwise(backFace);			
+			}
+			topFace[0][2] = backFace[0][0];
+			topFace[1][2] = backFace[0][1];
+			topFace[2][2] = backFace[0][2];
 
-// tz = -0.5 -> 0,3,6,9,12,15,18,21,24
-// tz = 0.0  -> 1,4,7,10,13,16,19,22,25
-// tz = 0.5  -> 2,5,8,11,14,17,20,23,26
+			bottomFace[0][2] = backFace[2][0];
+			bottomFace[1][2] = backFace[2][1];
+			bottomFace[2][2] = backFace[2][2];
+			
+			leftFace[0][2] = backFace[0][0];
+			leftFace[1][2] = backFace[1][0];
+			leftFace[2][2] = backFace[2][0];
+
+			rightFace[0][2] = backFace[0][2];
+			rightFace[1][2] = backFace[1][2];
+			rightFace[2][2] = backFace[2][2];
+			console.log("Changed back face");
+		}
+	}
+	else{
+		// Right Face
+		if(angleZr){
+			if(angleZr == -270){
+				tempZr = 90;
+			}
+			else if(angleZr == -90){
+				tempZr = 270;
+			}
+			else if(angleZr == -180){
+				tempZr = 180;
+			}
+			else{
+				tempZr = angleZr;
+			}
+			for (var i = 0; i < tempZr/90; i++) {
+				rotateCounterClockwise(frontFace);			
+			}
+			topFace[0][0] = frontFace[0][0];
+			topFace[1][0] = frontFace[0][1];
+			topFace[2][0] = frontFace[0][2];
+
+			bottomFace[0][2] = frontFace[2][0];
+			bottomFace[1][2] = frontFace[2][1];
+			bottomFace[2][2] = frontFace[2][2];
+			
+			leftFace[0][2] = frontFace[0][0];
+			leftFace[1][2] = frontFace[1][0];
+			leftFace[2][2] = frontFace[2][0];
+
+			rightFace[0][0] = frontFace[0][2];
+			rightFace[1][0] = frontFace[1][2];
+			rightFace[2][0] = frontFace[2][2];
+			console.log("Changed front face");
+		}
+	}
+}
 
 function computeRotations(){
-	if(angleZl){
-		cubes[0].rotationZ(angleZl);
-		cubes[3].rotationZ(angleZl);
-		cubes[6].rotationZ(angleZl);
-		cubes[9].rotationZ(angleZl);
-		cubes[12].rotationZ(angleZl);
-		cubes[15].rotationZ(angleZl);
-		cubes[18].rotationZ(angleZl);
-		cubes[21].rotationZ(angleZl);
-		cubes[24].rotationZ(angleZl);
-	}
-	
-	if(angleYl){
-		cubes[6].rotationY(angleYl);
-		cubes[7].rotationY(angleYl);
-		cubes[8].rotationY(angleYl);
-		cubes[15].rotationY(angleYl);
-		cubes[16].rotationY(angleYl);
-		cubes[17].rotationY(angleYl);
-		cubes[24].rotationY(angleYl);
-		cubes[25].rotationY(angleYl);
-		cubes[26].rotationY(angleYl);
-	}
+	// Left Face Rotations
+	cubes[leftFace[0][0]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[0][1]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[0][2]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[1][0]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[1][1]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[1][2]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[2][0]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[2][1]].rotationX(angleXl,staticCube.getMat());
+	cubes[leftFace[2][2]].rotationX(angleXl,staticCube.getMat());
 
-	if(angleXl){
-		cubes[0].rotationX(angleXl);
-		cubes[1].rotationX(angleXl);
-		cubes[2].rotationX(angleXl);
-		cubes[3].rotationX(angleXl);
-		cubes[4].rotationX(angleXl);
-		cubes[5].rotationX(angleXl);
-		cubes[6].rotationX(angleXl);
-		cubes[7].rotationX(angleXl);
-		cubes[8].rotationX(angleXl);
-	}
+	// Right Face Rotations
+	cubes[rightFace[0][0]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[0][1]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[0][2]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[1][0]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[1][1]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[1][2]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[2][0]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[2][1]].rotationX(angleXr,staticCube.getMat());
+	cubes[rightFace[2][2]].rotationX(angleXr,staticCube.getMat());
+
+	// Top Face Rotations
+	cubes[topFace[0][0]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[0][1]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[0][2]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[1][0]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[1][1]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[1][2]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[2][0]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[2][1]].rotationY(angleYl,staticCube.getMat());
+	cubes[topFace[2][2]].rotationY(angleYl,staticCube.getMat());
+
+	// Bottom Face Rotations
+	cubes[bottomFace[0][0]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[0][1]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[0][2]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[1][0]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[1][1]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[1][2]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[2][0]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[2][1]].rotationY(angleYr,staticCube.getMat());
+	cubes[bottomFace[2][2]].rotationY(angleYr,staticCube.getMat());
+
+	// Back Face Rotations
+	cubes[backFace[0][0]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[0][1]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[0][2]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[1][0]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[1][1]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[1][2]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[2][0]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[2][1]].rotationZ(angleZl,staticCube.getMat());
+	cubes[backFace[2][2]].rotationZ(angleZl,staticCube.getMat());
+
+	// Front Face Rotations
+	cubes[frontFace[0][0]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[0][1]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[0][2]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[1][0]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[1][1]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[1][2]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[2][0]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[2][1]].rotationZ(angleZr,staticCube.getMat());
+	cubes[frontFace[2][2]].rotationZ(angleZr,staticCube.getMat());
 }
 
 //----------------------------------------------------------------------------
@@ -869,6 +1104,8 @@ function setEventListeners( canvas ){
 		globalAngleX = 0;
 		globalAngleY = 0;
 		globalAngleZ = 0;
+
+		movesTrack = [];
 	};
 }
 
@@ -884,8 +1121,9 @@ function animate() {
 			
 		// XX Rotations
 		if(rotateXX_left) {
-			angleXl += Math.round(XX_DIR * (90 * elapsed) / 1700.0);
+			angleXl += Math.round(XX_DIR * (90 * elapsed) / 2000.0);
 			if(angleXl%90 == 0){
+				rotateFaceX(true);
 				rotateXX_left = false;
 			}
 			if(angleXl == 360){
@@ -904,6 +1142,7 @@ function animate() {
 	    if(rotateXX_right) {
 			angleXr += Math.round(XX_DIR * (90 * elapsed) / 1700.0);
 			if(angleXr%90 == 0){
+				rotateFaceX(false);
 				rotateXX_right = false;
 			}
 			if(angleXr == 360){
@@ -913,8 +1152,9 @@ function animate() {
 
 	    // YY Rotations
 	    if(rotateYY_left) {
-			angleYl += Math.round(YY_DIR * (90 * elapsed) / 1700.0);
+			angleYl += Math.round(YY_DIR * (90 * elapsed) / 2000.0);
 			if(angleYl%90 == 0){
+				rotateFaceY(true);
 				rotateYY_left = false;
 			}
 			if(angleYl == 360){
@@ -933,6 +1173,7 @@ function animate() {
 	    if(rotateYY_right) {
 			angleYr += Math.round(YY_DIR * (90 * elapsed) / 1700.0);
 			if(angleYr%90 == 0){
+				rotateFaceY(false);
 				rotateYY_right = false;
 			}
 			if(angleYm == 360){
@@ -942,8 +1183,9 @@ function animate() {
 
 	    // ZZ Rotations
 	    if(rotateZZ_left) {
-			angleZl += Math.round(ZZ_DIR * (90 * elapsed) / 1700.0);
+			angleZl += Math.round(ZZ_DIR * (90 * elapsed) / 2000.0);
 			if(angleZl%90 == 0){
+				rotateFaceZ(true);
 				rotateZZ_left = false;
 			}
 			if(angleZl == 360){
@@ -962,6 +1204,7 @@ function animate() {
 	    if(rotateZZ_right) {
 			angleZr += Math.round(ZZ_DIR * (90 * elapsed) / 1700.0);
 			if(angleZr%90 == 0){
+				rotateFaceZ(false);
 				rotateZZ_right = false;
 			}
 			if(angleZr == 360){

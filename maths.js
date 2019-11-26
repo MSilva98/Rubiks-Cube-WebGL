@@ -403,7 +403,7 @@ var sizeof = {
 
 function rotation(degrees, axis){
     
-    // normalize(axis);
+    normalize(axis);
 
     var x = axis[0];
     var y = axis[1];
@@ -414,9 +414,9 @@ function rotation(degrees, axis){
     var nCos = 1.0 - cos;
 
     return mat4(
-        vec4(x*x*nCos + cos,   x*y*nCos - z*sin, x*z*nCos + y*sin,0.0),
-        vec4(x*y*nCos + z*sin, y*y*nCos + cos,   y*z*nCos - x*sin,0.0),
-        vec4(x*z*nCos - y*sin, y*z*nCos - x*sin, z*z*nCos + cos,0.0),
+        vec4(x*x*nCos + cos,   x*y*nCos - z*sin, x*z*nCos + y*sin, 0),
+        vec4(x*y*nCos + z*sin, y*y*nCos + cos,   y*z*nCos - x*sin,0),
+        vec4(x*z*nCos - y*sin, y*z*nCos + x*sin, z*z*nCos + cos,0),
         vec4()
     );
 

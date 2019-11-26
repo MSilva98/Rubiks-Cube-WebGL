@@ -2,7 +2,7 @@
 
 class Cube{
 
-	constructor(mvMatrix, x,y,z){
+	constructor(mvMatrix, x,y,z, c){
 		this.mvMatrix = mvMatrix;
 		this.mvMatrixFix = mvMatrix; 
 		this.x = x;
@@ -42,30 +42,19 @@ class Cube{
 		return this.mvMatrix;
 	}
 
-	rotationX(angle){
-		var t1 = this.y;
-		var t2 = this.z;
-		var temp1, temp2;
-		this.mvMatrix = mult(this.mvMatrix, rotationXXMatrix(angle));
-		// temp1 = t1*Math.cos(radians(angleAxis))-t2*Math.sin(radians(angleAxis));
-		// temp2 = t1*Math.sin(radians(angleAxis))+t2*Math.cos(radians(angleAxis));
-		// this.y = temp1;
-		// this.z = temp2;
+	rotationX(angle, matrix){
+		// this.mvMatrix = mult(this.mvMatrix, rotation(angle,[1,0,0]));	
+		this.mvMatrix = mult(matrix, rotationXXMatrix(angle));
 	}
 
-	rotationY(angle){
-		this.mvMatrix = mult(this.mvMatrix, rotationYYMatrix(angle));
+	rotationY(angle, matrix){
+		// this.mvMatrix = mult(this.mvMatrix, rotation(angle,[0,1,0]));	
+		this.mvMatrix = mult(matrix, rotationYYMatrix(angle));
 	}
 
 	rotationZ(angle){
+		// this.mvMatrix = mult(this.mvMatrix, rotation(angle,[0,0,1]));	
 		this.mvMatrix = mult(this.mvMatrix, rotationZZMatrix(angle));
 	}	
-
-	// rotateOwnX(angle){
-	// 	this.mvMatrix = mult(this.mvMatrix, translationMatrix(this.x,this.y,this.z));
-	// 	this.mvMatrix = mult(this.mvMatrix, rotationXXMatrix(angle));
-	// 	this.mvMatrix = mult(this.mvMatrix, translationMatrix(-this.x,-this.y,-this.z));
-	// }
-
 }
 
