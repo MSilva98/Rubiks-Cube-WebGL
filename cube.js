@@ -43,17 +43,14 @@ class Cube{
 	}
 
 	rotationX(angle, matrix){
-		// this.mvMatrix = mult(this.mvMatrix, rotation(angle,[1,0,0]));	
 		this.mvMatrix = mult(matrix, rotationXXMatrix(angle));
 	}
 
 	rotationY(angle, matrix){
-		// this.mvMatrix = mult(this.mvMatrix, rotation(angle,[0,1,0]));	
 		this.mvMatrix = mult(matrix, rotationYYMatrix(angle));
 	}
 
 	rotationZ(angle){
-		// this.mvMatrix = mult(this.mvMatrix, rotation(angle,[0,0,1]));	
 		this.mvMatrix = mult(this.mvMatrix, rotationZZMatrix(angle));
 	}	
 }
