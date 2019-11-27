@@ -16,6 +16,10 @@
 // Global Variables
 //
 
+var countHits = 1;
+
+var points = 0;
+
 var gl = null; // WebGL context
 
 var shaderProgram = null;
@@ -24,6 +28,7 @@ var triangleVertexPositionBuffer = null;
 
 var triangleVertexNormalBuffer = null;
 
+var canvas;
 // The GLOBAL transformation parameters
 
 var globalAngleYY = 0.0;
@@ -427,6 +432,10 @@ function animate() {
 			}
 		}
 
+        //Moving lights
+
+
+
 
 
 }
@@ -434,6 +443,16 @@ function animate() {
 	lastTime = timeNow;
 }
 
+
+//Shadow ball
+
+function shadow_ball(){
+    sceneModels[3].tx = sceneModels[1].tx;
+    sceneModels[3].tz = sceneModels[1].tz;
+    sceneModels[3].sx = sceneModels[3].sz = sceneModels[3].sy;
+    sceneModels[3].sx =  sceneModels[1].ty*0.05 +sceneModels[3].sy;
+    sceneModels[3].sz = sceneModels[3].sx;
+}
 
 //Ball
 
@@ -444,12 +463,17 @@ function ball_init(vx,vy,vz) {
     ball_vel[0] = vx;
     ball_vel[1] = vy;
     ball_vel[2] = vz;
+    countHits = 1;
+    points = 0;
 }
 
 function ball_movement() {
     sceneModels[1].tx += ball_vel[0];
     sceneModels[1].ty += ball_vel[1];
     sceneModels[1].tz += ball_vel[2];
+    if((countHits % 2 )== 0 ){
+        ball_vel[2] *= 1.001;
+    }
 }
 
 function ball_limits_detection() {
@@ -457,6 +481,7 @@ function ball_limits_detection() {
         ball_vel[2] = -ball_vel[2];
     }
     if(sceneModels[1].tz > 1.8){
+        console.log(points);
         ball_init(0,0,0);
     }
 }
@@ -484,6 +509,7 @@ function ball_panel_collision() {
         y = sceneModels[1].ty + sceneModels[1].sy*Math.sin(radians(i))*0.80;
         if (pointInPanel(x,y)) {
             ball_vel[2] = -ball_vel[2];
+            countHits++;
             break;
         }
 
@@ -507,17 +533,23 @@ function pointInPanel(x,y) {
 }
 
 //panel
-
 function panel_limits() {
-    if((sceneModels[2].ty + sceneModels[2].sy)>= sceneModels[0].sy){
-        sceneModels[2].ty = sceneModels[0].sy - sceneModels[2].sy;
-    }else if((sceneModels[2].ty - sceneModels[2].sy)<= -sceneModels[0].sy){
-        sceneModels[2].ty = -sceneModels[0].sy + sceneModels[2].sy;
+	var maxX = sceneModels[0].sx*canvas.width-43.9;
+	var curX = (sceneModels[2].tx)*canvas.width;
+	var maxY = sceneModels[0].sy*canvas.height-43.9;
+	var curY = (sceneModels[2].ty)*canvas.height;
+
+    if(curY > maxY){
+        sceneModels[2].ty = (maxY)/canvas.height;
     }
-    if((sceneModels[2].tx + sceneModels[2].sx)>= sceneModels[0].sx){
-        sceneModels[2].tx = sceneModels[0].sx - sceneModels[2].sx;
-    }else if((sceneModels[2].tx - sceneModels[2].sx)<= -sceneModels[0].sx){
-        sceneModels[2].tx = -sceneModels[0].sx + sceneModels[2].sx;
+    else if(curY < -maxY){
+        sceneModels[2].ty = -(maxY)/canvas.height;
+    }
+    if(curX > maxX){
+        sceneModels[2].tx = (maxX)/canvas.width;
+    }
+    else if( curX < -maxX){
+        sceneModels[2].tx = -(maxX)/canvas.width;
     }
 }
 
@@ -537,6 +569,8 @@ function tick() {
     ball_tunel_collision();
     ball_panel_collision();
     panel_limits();
+    shadow_ball();
+    points++;
 
 	drawScene();
 
@@ -566,7 +600,7 @@ function handleKeys(){
 		}
 
         if(currentlyPressedKeys[82]){//RESET R
-			ball_init(0.00,0.00,-0.03);
+			ball_init(0.002,0.003,-0.03);
 		}
 
 
@@ -649,7 +683,7 @@ function initWebGL( canvas ) {
 
 function runWebGL() {
 
-	var canvas = document.getElementById("my-canvas");
+	canvas = document.getElementById("my-canvas");
 
 	initWebGL( canvas );
 
