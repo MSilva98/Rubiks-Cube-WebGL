@@ -328,10 +328,10 @@ function circleModel( subdivisionDepth = 2, r) {
 		const angle = 2*Math.PI*i/360;
 		const x = (r*Math.cos(angle))*2.3;
 		const y = (r*Math.sin(angle));
-		circle.vertices.push(x,y,0); 
+		circle.vertices.push(x,y,0);
 	}
 	circle.primitive = 1;
-	
+
 	// midPointRefinement( circle.vertices, 4 );
 	// moveToSphericalSurface(circle.vertices);
 	computeVertexNormals( circle.vertices, circle.normals );

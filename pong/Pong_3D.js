@@ -230,7 +230,7 @@ function drawModel( model,
 	// Drawing
 	if(model.primitive == 1){
 		gl.drawArrays(gl.TRIANGLE_FAN, 0, triangleVertexPositionBuffer.numItems);
-	}	
+	}
 	else{
 		gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 	}
@@ -457,7 +457,7 @@ function animate() {
 		bp = 0;
 	}
 	sceneModels[2].kDiff = [rp,gp,bp];
-	
+
 	lastTime = timeNow;
 }
 
@@ -497,13 +497,16 @@ function ball_movement() {
     sceneModels[1].ty += ball_vel[1];
     sceneModels[1].tz += ball_vel[2];
     if((countHits % 2 )== 0 ){
-        ball_vel[2] *= 1.001;
+        ball_vel[2] *= 1.0008;
     }
 }
 
 function ball_limits_detection() {
     if(sceneModels[1].tz <= -1.776){
         ball_vel[2] = -ball_vel[2];
+        var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+        ball_vel[1] = ball_vel[1]  + (((Math.random() * 0.001) + 0.0001)* plusOrMinus);
+        ball_vel[0] = ball_vel[0]  + (((Math.random() * 0.001) + 0.0001)* plusOrMinus);
     }
     if(sceneModels[1].tz > 2.5){
         ball_reset();
@@ -631,7 +634,7 @@ function handleKeys(){
 		}
 
         if(currentlyPressedKeys[82]){//RESET R
-			ball_init(0.002,0.003,-0.03);
+			ball_init((((Math.random() * 0.003) + 0.001)* (Math.random() < 0.5 ? -1 : 1)),(((Math.random() * 0.003) + 0.001)*(Math.random() < 0.5 ? -1 : 1)),-0.03);
 		}
 
 
@@ -644,7 +647,7 @@ var lastMouseY = null;
 function handleMouseDown(){
 	mouseDown = true;
 	if(mouse.checked){
-		ball_init(0.002,0.003,-0.03);
+		ball_init((((Math.random() * 0.003) + 0.001)* (Math.random() < 0.5 ? -1 : 1)),(((Math.random() * 0.003) + 0.001)*(Math.random() < 0.5 ? -1 : 1)),-0.03);
 	}
 }
 
@@ -653,7 +656,7 @@ function handleMouseUp(){
 }
 
 function handleMouseMove(event) {
-    
+
 	if(mouseDown){
 		return;
 	}
@@ -662,7 +665,7 @@ function handleMouseMove(event) {
 		var mousePosX = (event.clientX/canvas.width) - 1;
 		var mousePosY = (event.clientY/(canvas.height*(-1))) + 1;
 
-	   	sceneModels[2].tx = mousePosX*0.7;   	
+	   	sceneModels[2].tx = mousePosX*0.7;
 	   	sceneModels[2].ty = mousePosY-0.4;
 	}
 }
