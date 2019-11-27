@@ -43,10 +43,6 @@ var globalRotationYY_DIR = 1;
 
 var globalRotationYY_SPEED = 1;
 
-// To allow choosing the way of drawing the model triangles
-
-var primitiveType = null;
-
 // To allow choosing the projection type
 
 var projectionType = 1;
@@ -152,8 +148,7 @@ function initBuffers( model ) {
 //  Drawing the model
 
 function drawModel( model,
-					mvMatrix,
-					primitiveType ) {
+					mvMatrix ) {
 
 	// The the global model transformation is an input
 
@@ -231,28 +226,11 @@ function drawModel( model,
     }
 
 	// Drawing
-
-	// primitiveType allows drawing as filled triangles / wireframe / vertices
-
-	if( primitiveType == gl.LINE_LOOP ) {
-
-		// To simulate wireframe drawing!
-
-		// No faces are defined! There are no hidden lines!
-
-		// Taking the vertices 3 by 3 and drawing a LINE_LOOP
-
-		var i;
-
-		for( i = 0; i < triangleVertexPositionBuffer.numItems / 3; i++ ) {
-
-			gl.drawArrays( primitiveType, 3 * i, 3 );
-		}
-	}
-	else {
-
-		gl.drawArrays(primitiveType, 0, triangleVertexPositionBuffer.numItems);
-
+	if(model.primitive == 1){
+		gl.drawArrays(gl.TRIANGLE_FAN, 0, triangleVertexPositionBuffer.numItems);
+	}	
+	else{
+		gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 	}
 }
 
@@ -295,11 +273,6 @@ function drawScene() {
         pos_Viewer[1] = 0.0;
         pos_Viewer[2] = 0.0;
 		pos_Viewer[3] = 1.0;
-
-		// TO BE DONE !
-
-		// Allow the user to control the size of the view volume
-
 
 	// Passing the Projection Matrix to apply the current projection
 
@@ -357,10 +330,8 @@ function drawScene() {
 	for(var i = 0; i < sceneModels.length; i++ )
 	{
 		drawModel( sceneModels[i],
-			   mvMatrix,
-	           primitiveType );
+			   mvMatrix);
 	}
-
 	// NEW - Counting the frames
 
 	countFrames();
@@ -431,14 +402,7 @@ function animate() {
 				lightSources[i].setRotAngleZZ( angle );
 			}
 		}
-
-        //Moving lights
-
-
-
-
-
-}
+	}
 
 	lastTime = timeNow;
 }
@@ -450,7 +414,7 @@ function shadow_ball(){
     sceneModels[3].tx = sceneModels[1].tx;
     sceneModels[3].tz = sceneModels[1].tz;
     sceneModels[3].sx = sceneModels[3].sz = sceneModels[3].sy;
-    sceneModels[3].sx =  sceneModels[1].ty*0.05 +sceneModels[3].sy;
+    sceneModels[3].sx = sceneModels[1].ty*0.1 +sceneModels[3].sy;
     sceneModels[3].sz = sceneModels[3].sx;
 }
 
@@ -649,10 +613,6 @@ function initWebGL( canvas ) {
 		// DEFAULT: The viewport occupies the whole canvas
 
 		// DEFAULT: The viewport background color is WHITE
-
-		// NEW - Drawing the triangles defining the model
-
-		primitiveType = gl.TRIANGLES;
 
 		// DEFAULT: Face culling is DISABLED
 

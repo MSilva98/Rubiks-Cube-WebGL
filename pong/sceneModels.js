@@ -77,6 +77,8 @@ function emptyModelFeatures() {
 	this.nPhong = 100;
 
 	this.blend = false;
+
+	this.primitive = 0;
 }
 
 function singleTriangleModel( ) {
@@ -317,14 +319,22 @@ function horizontalSquareModel( ) {
 	return horizontalSquare;
 }
 
-function circleModel( subdivisionDepth = 2 ) {
+function circleModel( subdivisionDepth = 2, r) {
 
 	var circle = new horizontalSquareModel();
+	circle.vertices.splice(0,circle.vertices.length);
 
-	midPointRefinement( circle.vertices, 7 );
-	moveToSphericalSurface(circle.vertices);
+	for (var i = 0; i < 360; i++) {
+		const angle = 2*Math.PI*i/360;
+		const x = (r*Math.cos(angle))*2.3;
+		const y = (r*Math.sin(angle));
+		circle.vertices.push(x,y,0); 
+	}
+	circle.primitive = 1;
+	
+	// midPointRefinement( circle.vertices, 4 );
+	// moveToSphericalSurface(circle.vertices);
 	computeVertexNormals( circle.vertices, circle.normals );
-
 	return circle;
 }
 
@@ -365,13 +375,13 @@ sceneModels[2].tz = 1.776;
 sceneModels[2].blend = true;
 sceneModels[2].kAmbi = [0.0,0.1,0.0];
 sceneModels[2].kDiff = [0.0,0.7,0.0];
-sceneModels[2].kSpec = [1.0,1.0,1.0];
+sceneModels[2].kSpec = [0.7	,0.7,0.7];
 sceneModels[2].Phong = 32;
 
 // Model 3 --- Shadow ball
 
 //sceneModels.push( new horizontalSquareModel() );
-sceneModels.push( new circleModel(5) );
+sceneModels.push( new circleModel(5, 0.4) );
 sceneModels[3].sx = sceneModels[3].sy = sceneModels[3].sz = 0.03;
 sceneModels[3].ty = -0.2655; //scale tunel - sclale shadow
 sceneModels[3].kAmbi = [0.1,0.1,0.1];
