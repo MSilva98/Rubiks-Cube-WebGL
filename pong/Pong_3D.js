@@ -402,11 +402,10 @@ function animate() {
 		}
 	}
 
-	var r,g,b;
 	// Ball color
-	r = document.getElementById("R").value;
-	g = document.getElementById("G").value;
-	b = document.getElementById("B").value;
+	var r = document.getElementById("R").value;
+	var g = document.getElementById("G").value;
+	var b = document.getElementById("B").value;
 
 	if(r > 1){
 		r = 1;
@@ -431,10 +430,9 @@ function animate() {
 	sceneModels[1].kDiff = [r,g,b];
 
 	// Paddle color
-	var rp, gp, bp;
-	rp = document.getElementById("Rp").value;
-	gp = document.getElementById("Gp").value;
-	bp = document.getElementById("Bp").value;
+	var rp = document.getElementById("Rp").value;
+	var gp = document.getElementById("Gp").value;
+	var bp = document.getElementById("Bp").value;
 
 	if(rp > 1){
 		rp = 1;
@@ -457,6 +455,30 @@ function animate() {
 		bp = 0;
 	}
 	sceneModels[2].kDiff = [rp,gp,bp];
+
+	var leftLight = document.getElementById("ll");
+	var rightLight = document.getElementById("rl");
+	var centerLight = document.getElementById("cl");
+	if(leftLight.checked == false){
+		lightSources[1].switchOff();
+	}
+	else{
+		lightSources[1].switchOn();
+	}
+	
+	if(rightLight.checked == false){
+		lightSources[0].switchOff();
+	}
+	else{
+		lightSources[0].switchOn();
+	}
+
+	if(centerLight.checked == false){
+		lightSources[2].switchOff();
+	}
+	else{
+		lightSources[2].switchOn();
+	}
 
 	lastTime = timeNow;
 }
