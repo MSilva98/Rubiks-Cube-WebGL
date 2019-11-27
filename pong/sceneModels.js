@@ -332,7 +332,7 @@ sceneModels[1].Phong = 32;
 sceneModels.push( new panelModel() );
 sceneModels[2].sx = sceneModels[2].sy = sceneModels[2].sz = 0.045;
 sceneModels[2].tx = sceneModels[2].ty = 0;
-sceneModels[2].tz = 1.621;
+sceneModels[2].tz = 1.776;
 sceneModels[2].blend = true;
 sceneModels[2].kAmbi = [0.0,0.1,0.0];
 sceneModels[2].kDiff = [0.0,0.7,0.0];

@@ -226,7 +226,29 @@ function drawModel( model,
     }
 
 	// Drawing
-	gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);	
+
+	// primitiveType allows drawing as filled triangles / wireframe / vertices
+
+	if( primitiveType == gl.LINE_LOOP ) {
+
+		// To simulate wireframe drawing!
+
+		// No faces are defined! There are no hidden lines!
+
+		// Taking the vertices 3 by 3 and drawing a LINE_LOOP
+
+		var i;
+
+		for( i = 0; i < triangleVertexPositionBuffer.numItems / 3; i++ ) {
+
+			gl.drawArrays( primitiveType, 3 * i, 3 );
+		}
+	}
+	else {
+
+		gl.drawArrays(primitiveType, 0, triangleVertexPositionBuffer.numItems);
+
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -301,6 +323,8 @@ function drawScene() {
 
 		if( !lightSources[i].isOff() ) {
 
+			// COMPLETE THE CODE FOR THE OTHER ROTATION AXES
+
 			if( lightSources[i].isRotYYOn() )
 			{
 				lightSourceMatrix = mult(
@@ -325,7 +349,7 @@ function drawScene() {
 
 	// Instantianting all scene models
 
-	for(var i = 0; i < sceneModels.length; i++)
+	for(var i = 0; i < sceneModels.length; i++ )
 	{
 		drawModel( sceneModels[i],
 			   mvMatrix,
@@ -356,10 +380,10 @@ function animate() {
 
 		// Global rotation
 
-		// if( globalRotationYY_ON ) {
+		if( globalRotationYY_ON ) {
 
-		// 	globalAngleYY += globalRotationYY_DIR * globalRotationYY_SPEED * (90 * elapsed) / 1000.0;
-	 //    }
+			globalAngleYY += globalRotationYY_DIR * globalRotationYY_SPEED * (90 * elapsed) / 1000.0;
+	    }
 
 		// For every model --- Local rotations
 
@@ -383,15 +407,15 @@ function animate() {
 
 		// Rotating the light sources
 
-		// for(var i = 0; i < lightSources.length; i++ )
-	 //    {
-		// 	if( lightSources[i].isRotYYOn() ) {
+		for(var i = 0; i < lightSources.length; i++ )
+	    {
+			if( lightSources[i].isRotYYOn() ) {
 
-		// 		var angle = lightSources[i].getRotAngleYY() + lightSources[i].getRotationSpeed() * (90 * elapsed) / 1000.0;
+				var angle = lightSources[i].getRotAngleYY() + lightSources[i].getRotationSpeed() * (90 * elapsed) / 1000.0;
 
-		// 		lightSources[i].setRotAngleYY( angle );
-		// 	}
-		// }
+				lightSources[i].setRotAngleYY( angle );
+			}
+		}
 
         for(var i = 0; i < lightSources.length; i++ )
 	    {
@@ -404,17 +428,19 @@ function animate() {
 		}
 
 
-	}
+
+}
 
 	lastTime = timeNow;
 }
 
 
 //Ball
+
 function ball_init(vx,vy,vz) {
-    sceneModels[1].tx = 0;
-    sceneModels[1].ty = 0;
-    sceneModels[1].tz = 0;
+    sceneModels[1].tx = ball_pos[0];
+    sceneModels[1].ty = ball_pos[1];
+    sceneModels[1].tz = ball_pos[2];
     ball_vel[0] = vx;
     ball_vel[1] = vy;
     ball_vel[2] = vz;
@@ -427,10 +453,10 @@ function ball_movement() {
 }
 
 function ball_limits_detection() {
-    if(sceneModels[1].tz <= -1.62){
+    if(sceneModels[1].tz <= -1.776){
         ball_vel[2] = -ball_vel[2];
     }
-    if(sceneModels[1].tz > 2.5){
+    if(sceneModels[1].tz > 1.8){
         ball_init(0,0,0);
     }
 }
@@ -450,17 +476,34 @@ function ball_tunel_collision(){
 }
 
 function ball_panel_collision() {
-    if (sceneModels[1].tz  >= 1.62) {
-        if ((sceneModels[1].tx )<= (sceneModels[2].tx + panel_size)) {
-            if ((sceneModels[1].tx )>= (sceneModels[2].tx - panel_size)) {
-                if ((sceneModels[1].ty )<= (sceneModels[2].ty + panel_size)) {
-                    if ((sceneModels[1].ty )>= (sceneModels[2].ty - panel_size)) {
-                        ball_vel[2] = -ball_vel[2];
+    var x;
+    var y;
+
+    for (var i = 0; i < 361; i+=30) {
+        x = sceneModels[1].tx + sceneModels[1].sx*Math.cos(radians(i))*0.80;
+        y = sceneModels[1].ty + sceneModels[1].sy*Math.sin(radians(i))*0.80;
+        if (pointInPanel(x,y)) {
+            ball_vel[2] = -ball_vel[2];
+            break;
+        }
+
+    }
+}
+
+function pointInPanel(x,y) {
+    if (sceneModels[1].tz + sceneModels[1].sz >= 1.776) {
+        if (x<= (sceneModels[2].tx + panel_size)) {
+            if ((x>= (sceneModels[2].tx - panel_size))) {
+                if (y<= (sceneModels[2].ty + panel_size)) {
+                    if (y>= (sceneModels[2].ty - panel_size)) {
+                        return true;
                     }
                 }
             }
         }
     }
+
+    return false;
 }
 
 //panel
@@ -522,9 +565,8 @@ function handleKeys(){
 			sceneModels[2].ty -= panel_vel;
 		}
 
-        if(currentlyPressedKeys[32]){//RESET/START SPACE
-			ball_init(0.002,0.003,-0.03);
-			// ball_init(0,0,0);
+        if(currentlyPressedKeys[82]){//RESET R
+			ball_init(0.00,0.00,-0.03);
 		}
 
 
@@ -573,6 +615,10 @@ function initWebGL( canvas ) {
 		// DEFAULT: The viewport occupies the whole canvas
 
 		// DEFAULT: The viewport background color is WHITE
+
+		// NEW - Drawing the triangles defining the model
+
+		primitiveType = gl.TRIANGLES;
 
 		// DEFAULT: Face culling is DISABLED
 
