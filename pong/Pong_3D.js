@@ -57,6 +57,7 @@ var pos_Viewer = [ 0.0, 0.0, 0.0, 1.0 ];
 
 var ball_pos = [ 0.0,0.0,0.0];
 var ball_vel = [ 0.0,0.0,0.0];
+var gameStarted = false;
 
 //Panel
 
@@ -127,6 +128,7 @@ function initBuffers( model ) {
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
 			triangleVertexPositionBuffer.itemSize,
 			gl.FLOAT, false, 0, 0);
+
 
 	// Vertex Normal Vectors
 
@@ -263,12 +265,8 @@ function drawScene() {
 
 		globalTz = -2.5;
 
-		// NEW --- The viewer is on (0,0,0)
+		// The viewer is on (0,0,0)
 
-		// pos_Viewer[0] = 0.0;
-        // pos_Viewer[1] = 0.0;
-        // pos_Viewer[2] = 0.0;
-		// pos_Viewer[3] = 1.0;
         pos_Viewer[0] = 0.0;
         pos_Viewer[1] = 0.0;
         pos_Viewer[2] = 0.0;
@@ -404,6 +402,62 @@ function animate() {
 		}
 	}
 
+	var r,g,b;
+	// Ball color
+	r = document.getElementById("R").value;
+	g = document.getElementById("G").value;
+	b = document.getElementById("B").value;
+
+	if(r > 1){
+		r = 1;
+	}
+	if(r < 0){
+		r = 0;
+	}
+
+	if(g > 1){
+		g = 1;
+	}
+	if(g < 0){
+		g = 0;
+	}
+
+	if(b > 1){
+		b = 1;
+	}
+	if(b < 0){
+		b = 0;
+	}
+	sceneModels[1].kDiff = [r,g,b];
+
+	// Paddle color
+	var rp, gp, bp;
+	rp = document.getElementById("Rp").value;
+	gp = document.getElementById("Gp").value;
+	bp = document.getElementById("Bp").value;
+
+	if(rp > 1){
+		rp = 1;
+	}
+	if(rp < 0){
+		rp = 0;
+	}
+
+	if(gp > 1){
+		gp = 1;
+	}
+	if(gp < 0){
+		gp = 0;
+	}
+
+	if(bp > 1){
+		bp = 1;
+	}
+	if(bp < 0){
+		bp = 0;
+	}
+	sceneModels[2].kDiff = [rp,gp,bp];
+	
 	lastTime = timeNow;
 }
 
@@ -424,11 +478,18 @@ function ball_init(vx,vy,vz) {
     sceneModels[1].tx = ball_pos[0];
     sceneModels[1].ty = ball_pos[1];
     sceneModels[1].tz = ball_pos[2];
-    ball_vel[0] = vx;
-    ball_vel[1] = vy;
-    ball_vel[2] = vz;
+    ball_vel = [vx,vy,vz];
+    gameStarted = true;
     countHits = 1;
     points = 0;
+}
+
+function ball_reset(){
+	sceneModels[1].tx = ball_pos[0];
+    sceneModels[1].ty = ball_pos[1];
+    sceneModels[1].tz = ball_pos[2];
+    ball_vel = [0,0,0];
+    gameStarted = false;
 }
 
 function ball_movement() {
@@ -444,9 +505,8 @@ function ball_limits_detection() {
     if(sceneModels[1].tz <= -1.776){
         ball_vel[2] = -ball_vel[2];
     }
-    if(sceneModels[1].tz > 1.8){
-        console.log(points);
-        ball_init(0,0,0);
+    if(sceneModels[1].tz > 2.5){
+        ball_reset();
     }
 }
 
@@ -474,6 +534,7 @@ function ball_panel_collision() {
         if (pointInPanel(x,y)) {
             ball_vel[2] = -ball_vel[2];
             countHits++;
+            points += Math.round(-1000*ball_vel[2]);
             break;
         }
 
@@ -481,7 +542,8 @@ function ball_panel_collision() {
 }
 
 function pointInPanel(x,y) {
-    if (sceneModels[1].tz + sceneModels[1].sz >= 1.776) {
+	var tz = sceneModels[1].tz + sceneModels[1].sz;
+    if (tz >= 1.776 && tz < 1.85) {
         if (x<= (sceneModels[2].tx + panel_size)) {
             if ((x>= (sceneModels[2].tx - panel_size))) {
                 if (y<= (sceneModels[2].ty + panel_size)) {
@@ -520,12 +582,18 @@ function panel_limits() {
 //----------------------------------------------------------------------------
 
 // Timer
+var mouse;
 
 function tick() {
 
 	requestAnimFrame(tick);
 
-    handleKeys();
+	mouse = document.getElementById("ctr");
+	document.getElementById("score").innerHTML ='Score: ' + points;
+
+	if(mouse.checked == false){
+    	handleKeys();
+	}
 
     //Ball movement
     ball_movement();
@@ -534,7 +602,6 @@ function tick() {
     ball_panel_collision();
     panel_limits();
     shadow_ball();
-    points++;
 
 	drawScene();
 
@@ -570,6 +637,36 @@ function handleKeys(){
 
 }
 
+var mouseDown = false;
+var lastMouseX = null;
+var lastMouseY = null;
+
+function handleMouseDown(){
+	mouseDown = true;
+	if(mouse.checked){
+		ball_init(0.002,0.003,-0.03);
+	}
+}
+
+function handleMouseUp(){
+	mouseDown = false;
+}
+
+function handleMouseMove(event) {
+    
+	if(mouseDown){
+		return;
+	}
+
+	if(mouse.checked){
+		var mousePosX = (event.clientX/canvas.width) - 1;
+		var mousePosY = (event.clientY/(canvas.height*(-1))) + 1;
+
+	   	sceneModels[2].tx = mousePosX*0.7;   	
+	   	sceneModels[2].ty = mousePosY-0.4;
+	}
+}
+
 //----------------------------------------------------------------------------
 //
 //  User Interaction
@@ -594,6 +691,10 @@ function setEventListeners(){
     document.onkeydown = handleKeyDown;
 
 	document.onkeyup = handleKeyUp;
+
+	canvas.onmousedown = handleMouseDown;
+	document.onmouseup = handleMouseUp;
+	document.onmousemove = handleMouseMove;
 }
 
 //----------------------------------------------------------------------------

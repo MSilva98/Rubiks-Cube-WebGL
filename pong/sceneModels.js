@@ -360,8 +360,8 @@ sceneModels[0].Phong = 80;
 
 sceneModels.push( new sphereModel(5) );
 sceneModels[1].sx = sceneModels[1].sy = sceneModels[1].sz = 0.03;
-sceneModels[1].kAmbi = [0.2,0.0,0.0];
-sceneModels[1].kDiff = [0.9,0.0,0.0];
+sceneModels[1].kAmbi = [0.2,0.2,0.2];
+sceneModels[1].kDiff = [0.9,0.9,0.0];
 sceneModels[1].kSpec = [1.0,1.0,1.0];
 sceneModels[1].Phong = 32;
 
@@ -373,9 +373,9 @@ sceneModels[2].sx = sceneModels[2].sy = sceneModels[2].sz = 0.045;
 sceneModels[2].tx = sceneModels[2].ty = 0;
 sceneModels[2].tz = 1.776;
 sceneModels[2].blend = true;
-sceneModels[2].kAmbi = [0.0,0.1,0.0];
+sceneModels[2].kAmbi = [0.1,0.1,0.1];
 sceneModels[2].kDiff = [0.0,0.7,0.0];
-sceneModels[2].kSpec = [0.7	,0.7,0.7];
+sceneModels[2].kSpec = [0.7,0.7,0.7];
 sceneModels[2].Phong = 32;
 
 // Model 3 --- Shadow ball
@@ -386,5 +386,5 @@ sceneModels[3].sx = sceneModels[3].sy = sceneModels[3].sz = 0.03;
 sceneModels[3].ty = -0.2655; //scale tunel - sclale shadow
 sceneModels[3].kAmbi = [0.1,0.1,0.1];
 sceneModels[3].kDiff = [0.5,0.5,0.5];
-sceneModels[3].kSpec = [0.7,0.7,0.7];
-sceneModels[3].Phong = 1;
+sceneModels[3].kSpec = [0.1,0.1,0.1];
+sceneModels[3].Phong = 100;

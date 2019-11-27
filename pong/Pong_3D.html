@@ -236,19 +236,42 @@ The fragment shader is the same simple one.
 </head>
 
 <body onload="runWebGL();">
+		<div style="text-align: center; display: inline-block; margin-left: 20px;">
+			<p>Pong 3D</p>
 
-	<div style="text-align: center">
+			<canvas id="my-canvas" style="border:1px solid #000000;" width="720" height="720"></canvas>
 
-		<p>Pong 3D</p>
+			<!-- Show the number of frames per second -->
+			<div style="display: flex; align-items: center">
+				<p style="text-align: left;	width: 50%;" id="fps"> FPS: </p>
+				<p style="text-align: right; width: 50%; margin-right: 50px" id="score"> Score: </p>
+			</div>
+		</div>
+		
+		<div style="float: left;">
+			<form>
+				Change ball color (values between 0 and 1)
+				<br>
+				<br>
+				R: <input type="text" id="R" value="0.9" size="1" style="text-align: center; margin-bottom: 5px;"><br>
+				G: <input type="text" id="G" value="0.0" size="1" style="text-align: center; margin-bottom: 5px; margin-left: -1px;"><br>
+				B: <input type="text" id="B" value="0.0" size="1" style="text-align: center; margin-bottom: 5px;"><br>
+			</form>
+			<br>
+			<form>
+				Change paddle color (values between 0 and 1)
+				<br>
+				<br>
+				R: <input type="text" id="Rp" value="0.0" size="1" style="text-align: center; margin-bottom: 5px;"><br>
+				G: <input type="text" id="Gp" value="0.7" size="1" style="text-align: center; margin-bottom: 5px; margin-left: -1px;"><br>
+				B: <input type="text" id="Bp" value="0.0" size="1" style="text-align: center; margin-bottom: 5px;"><br>
+			</form>
 
-		<canvas id="my-canvas" style="border:1px solid #000000;" width="720" height="720"></canvas>
-
-		<!-- NEW --- To show the number of frames per second -->
-
-		<p id="fps"> fps: </p>
-
-	</div>
-
+			<br>
+			<br>
+			<input type="checkbox" id="ctr" value="mouse">Play with mouse
+			<br>
+		</div>
 </body>
 
 </html>
