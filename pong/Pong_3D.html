@@ -6,7 +6,7 @@
 
 <!--
 
-WebGL_example_NEW_GPU_per_vertex.html
+Pong_3D.html
 
 Phong Illumination Model on the GPU - Per vertex shading - Several light sources
 
@@ -239,7 +239,7 @@ The fragment shader is the same simple one.
 		<div style="text-align: center; display: inline-block; margin-left: 20px;">
 			<p>Pong 3D</p>
 
-			<canvas id="my-canvas" style="border:1px solid #000000;" width="720" height="720"></canvas>
+			<canvas id="my-canvas" style="border:1px solid #000000; cursor: none" width="720" height="720"></canvas>
 
 			<!-- Show the number of frames per second -->
 			<div style="display: flex; align-items: center">
@@ -250,18 +250,14 @@ The fragment shader is the same simple one.
 		
 		<div style="float: left;">
 			<form>
-				Change ball color (values between 0 and 1)
-				<br>
-				<br>
+				<h4>Change ball color (values between 0 and 1)</h4>
 				R: <input type="text" id="R" value="0.9" size="1" style="text-align: center; margin-bottom: 5px;"><br>
 				G: <input type="text" id="G" value="0.0" size="1" style="text-align: center; margin-bottom: 5px; margin-left: -1px;"><br>
 				B: <input type="text" id="B" value="0.0" size="1" style="text-align: center; margin-bottom: 5px;"><br>
 			</form>
 			<br>
 			<form>
-				Change paddle color (values between 0 and 1)
-				<br>
-				<br>
+				<h4>Change paddle color (values between 0 and 1)</h4>
 				R: <input type="text" id="Rp" value="0.0" size="1" style="text-align: center; margin-bottom: 5px;"><br>
 				G: <input type="text" id="Gp" value="0.7" size="1" style="text-align: center; margin-bottom: 5px; margin-left: -1px;"><br>
 				B: <input type="text" id="Bp" value="0.0" size="1" style="text-align: center; margin-bottom: 5px;"><br>
@@ -269,17 +265,28 @@ The fragment shader is the same simple one.
 
 			<br>
 			<br>
-			<input type="checkbox" id="ctr" value="mouse">Play with mouse
+			<label><input type="checkbox" id="ctr" value="mouse">Play with mouse</label>
 			<br>
 			<br>
-			<input type="checkbox" id="ll" value="leftLight" checked>Left Light ON/OFF
+			<h4>Lights control</h4>
+			<label><input type="checkbox" id="ll" value="leftLight" checked>Left Light ON/OFF</label>
 			<br>
 			<br>
-			<input type="checkbox" id="rl" value="rightLight" checked>Right Light ON/OFF
+			<label><input type="checkbox" id="rl" value="rightLight" checked>Right Light ON/OFF</label>
 			<br>
 			<br>
-			<input type="checkbox" id="cl" value="centerLight" >Center Light ON/OFF
+			<label><input type="checkbox" id="cl" value="centerLight" >Center Light ON/OFF</label>
 			<br>
+
+			<h3>Controls:</h3>
+			<ul>
+				<li>Use WASD keys to control the paddle</li>
+				<li>Use Arrows keys to control the paddle with double speed</li>
+				<li>Use the mouse to control the paddle checking the "Play with mouse" box</li>
+				<li>Use R key or Space Bar to launch the ball or a mouse click when playing with it</li>
+				<li>Change the ball or paddle color by changing the values of RGB parameters</li>
+				<li>Switch lights ON/OFF according to your preference</li>
+			</ul>
 		</div>
 </body>
 
